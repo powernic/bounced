@@ -17,7 +17,15 @@ class Player extends Component {
     }
 
 
-    findAngleKf = (point1, point2) => {
+    findAngleKf = (point, angle) => {
+        const k = Math.tan(angle * Math.PI / 180);
+        return {
+            k: k,
+            b: -k * point.x + point.y
+        };
+    }
+
+    findAngleKfPoint = (point1, point2) => {
         const diffY = (point2.y - point1.y);
         const diffX = (point2.x - point1.x);
         if (diffX === 0) {
@@ -33,74 +41,144 @@ class Player extends Component {
         return (Math.atan2(point1.y - point2.y, point1.x - point2.x) * 180) / Math.PI;
     }
 
-    findPoint = (point1, point2, area, currentAngle) => {
-        const rayKf = this.findAngleKf(point1, point2);
+    findPoint = (point, currentAngle) => {
+        const rayKf = this.findAngleKf(point, currentAngle);
         const corners = this.props.playground.corners;
 
-        const angleToTopRight = this.calcAngle(point1, corners.topRight);
-        const angleToTopLeft = this.calcAngle(point1, corners.topLeft);
-        const angleToBottomRight = this.calcAngle(point1, corners.bottomRight);
-        const angleToBottomLeft = this.calcAngle(point1, corners.bottomLeft);
+        let points = [];
 
-        if (currentAngle <= angleToTopRight && currentAngle >= angleToTopLeft) {
-            const sideKf = this.findAngleKf(corners.topLeft, corners.topRight);
-            return {
-                x: (sideKf.b - rayKf.b) / (rayKf.k - sideKf.k),
-                y: 0
-            }
-        } else if (currentAngle <= angleToTopLeft && currentAngle > angleToBottomLeft) {
-            return {x: 0, y: rayKf.b}
-        } else if (currentAngle <= angleToBottomLeft && currentAngle >= angleToBottomRight) {
-            const sideKf = this.findAngleKf(corners.bottomLeft, corners.bottomRight);
-            return {
-                x: (sideKf.b - rayKf.b) / (rayKf.k - sideKf.k),
-                y: area.height}
+        if (currentAngle <= 90 && currentAngle >= 0) {
+            points = [
+                {
+                    x: -rayKf.b / rayKf.k,
+                    y: 0
+                },
+                {
+                    x: 0,
+                    y: rayKf.b
+                }
+            ];
+        } else if (currentAngle <= 0 && currentAngle >= -90) {
+            points = [
+                {
+                    x: 0,
+                    y: rayKf.b
+                },
+                {
+                    x: (corners.bottomLeft.y - rayKf.b) / (rayKf.k),
+                    y: corners.bottomLeft.y
+                }
+            ];
+        } else if (currentAngle <= -90 && currentAngle >= -180) {
+            points = [
+                {
+                    x: (corners.bottomLeft.y - rayKf.b) / (rayKf.k),
+                    y: corners.bottomLeft.y
+                },
+                {
+                    x: corners.topRight.x,
+                    y: rayKf.k * corners.topRight.x + rayKf.b
+                }
+
+            ];
         } else {
-            const y = rayKf.k * area.width + rayKf.b;
-            return {x: area.width, y: y}
+            points = [
+                {
+                    x: -rayKf.b / rayKf.k,
+                    y: 0
+                },
+                {
+                    x: corners.topRight.x,
+                    y: rayKf.k * corners.topRight.x + rayKf.b
+                }
+            ];
+        }
+
+        const dist1 = Math.sqrt(Math.pow(point.x - points[0].x, 2) + Math.pow(point.y - points[0].y, 2));
+        const dist2 = Math.sqrt(Math.pow(point.x - points[1].x, 2) + Math.pow(point.y - points[1].y, 2));
+        if (dist1 <= dist2) {
+            return points[0];
+        } else {
+            return points[1];
         }
     }
 
-    setPlaygroundCorners = e => {
-        const area = e.nativeEvent.layout;
-        this.props.setPlaygroundCorners({
-            topLeft:{x: 0, y: 0},
-            topRight:{x: area.width, y: 0},
-            bottomLeft:{x: 0, y:  area.height},
-            bottomRight:{x: area.width, y: area.height}
-        });
+    setPlayground = (area, point) => {
+        const corners = {
+            topLeft: {x: 0, y: 0},
+            topRight: {x: area.width, y: 0},
+            bottomLeft: {x: 0, y: area.height},
+            bottomRight: {x: area.width, y: area.height}
+        };
+        const playground = {
+            corners: corners,
+            angles: {
+                topLeft: this.calcAngle(point, corners.topLeft),
+                topRight: this.calcAngle(point, corners.topRight),
+                bottomLeft: this.calcAngle(point, corners.bottomLeft),
+                bottomRight: this.calcAngle(point, corners.bottomRight)
+            }
+        };
+        this.props.setPlayground(playground);
     }
+
+    getMirrorAngle(point, angle) {
+
+        const corners = this.props.playground.corners;
+        if (point.y === corners.topLeft.y || point.y === corners.bottomLeft.y) {
+            return -angle;
+        } else if (point.x === corners.topLeft.x || point.x === corners.topRight.x) {
+            if (angle < 0) {
+                return -(180 + angle);
+            } else {
+                return 180 - angle;
+            }
+        }
+    }
+
+    renderRaycast = (point, angle, count) => {
+        let raycastTemplate = [];
+        let endPoint = point;
+        let width = 0;
+
+        for (let key = 0; key < count; key++) {
+            angle = this.getMirrorAngle(point, angle);
+            endPoint = this.findPoint(endPoint, angle);
+            width = Math.sqrt(Math.pow(endPoint.x - point.x, 2) + Math.pow(endPoint.y - point.y, 2));
+            raycastTemplate.push(<View key={key} style={{
+                width: 10, height: 10,
+                position: 'absolute',
+                left: point.x - 5,
+                top: point.y - 5,
+                borderRadius: 10,
+                backgroundColor: "#ddd"
+            }}>
+                <Ray raySize={10} rayWidth={width} angle={angle}/>
+            </View>);
+
+            point = endPoint;
+        }
+        return raycastTemplate;
+    };
 
     render() {
         let {ballPosition, tapPosition} = this.state;
         const angle = this.calcAngle(ballPosition, tapPosition);
-        const pointPos = this.findPoint(ballPosition, tapPosition, angle);
-        const angle2 = -angle;
-        const mirrorPosition = pointPos;
+        const pointPos = this.findPoint(ballPosition, angle);
         const width = Math.sqrt(Math.pow(pointPos.x - ballPosition.x, 2) + Math.pow(pointPos.y - ballPosition.y, 2));
         return (
-            <View onLayout={this.setPlaygroundCorners}
+            <View onLayout={e =>
+                this.setPlayground(e.nativeEvent.layout, ballPosition)
+            }
                   style={styles.playContainer} onStartShouldSetResponder={() => true}
-                  onResponderMove={(e) => {
-                      this.setState({
-                          tapPosition: {
-                              x: e.nativeEvent.locationX,
-                              y: e.nativeEvent.locationY
-                          }
-                      })
-                  }
-                  }>
+                  onResponderMove={e => this.setState({
+                      tapPosition: {
+                          x: e.nativeEvent.locationX,
+                          y: e.nativeEvent.locationY
+                      }
+                  })}>
                 <Text style={{color: "#fff"}}>Полина молодец</Text>
-                <View style={{
-                    width: 10, height: 10,
-                    position: 'absolute',
-                    left: mirrorPosition.x - 5,
-                    top: mirrorPosition.y - 5,
-                    borderRadius: 10,
-                    backgroundColor: "#ff0000"
-                }}>
-                    <Ray Positions={{mirrorPosition}} rayWidth={width} angle={angle2}/>
-                </View>
+                {this.renderRaycast(pointPos,angle,20)}
                 <View style={{
                     width: 20, height: 20,
                     position: 'absolute',
@@ -109,7 +187,7 @@ class Player extends Component {
                     borderRadius: 10,
                     backgroundColor: "#ff0000"
                 }}>
-                    <Ray Positions={{ballPosition}} rayWidth={width} angle={angle}/>
+                    <Ray Positions={{ballPosition}} raySize={20} rayWidth={width} angle={angle}/>
                 </View>
             </View>
         );

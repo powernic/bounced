@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux'
-import {setPlaygroundCorners} from "../actions/PlayerActions";
+import {setPlayground} from "../actions/PlayerActions";
 import Player from "../components/Player";
 
 class PlayerContainer extends Component {
     render() {
-        const {setPlaygroundCorners,playground} = this.props;
+        const {setPlayground,playground} = this.props;
         return (
-            <Player setPlaygroundCorners={setPlaygroundCorners} playground={playground}/>
+            <Player setPlayground={setPlayground} playground={playground}/>
         );
     }
 }
