@@ -1,22 +1,14 @@
-import React, {Component} from 'react';
-import {Platform, TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
+import React from 'react';
 import {
     Scene,
     Router,
-    Actions,
-    Reducer,
-    ActionConst,
     Overlay,
-    Tabs,
-    Modal,
-    Drawer,
     Stack,
-    Lightbox,
 } from 'react-native-router-flux';
-import { store } from './src/store/configureStore' // исправлено
-import {Provider} from 'react-redux';
 import Home from './src/scenes/Home';
 import Play from './src/scenes/Play';
+import {store} from "./src/store/configureStore";
+import {Provider} from 'react-redux';
 
 const App = () => (
     <Provider store={store}>

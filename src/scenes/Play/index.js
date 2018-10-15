@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
-import {Platform, TouchableOpacity, Image, StyleSheet, Text, View, Animated, PixelRatio} from 'react-native';
-import Modal from 'react-native-modalbox';
-import {Actions} from "react-native-router-flux";
-import PlayerContainer from "../../containers/PlayerContainer";
+import {TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
+import Game from '../../containers/Game';
 
 class Play extends Component {
 
@@ -11,10 +9,9 @@ class Play extends Component {
         isDisabled: false,
         swipeToClose: true,
         sliderValue: 0.3,
-    }
+    };
 
     render() {
-        //  var BContent = <Button onPress={() => this.setState({isOpen: false})} style={[styles.btn, styles.btnModal]}>X</Button>;
         return (
             <View style={styles.container}>
                 <View style={styles.scoreTab}>
@@ -38,9 +35,8 @@ class Play extends Component {
                         <Text style={{color: "#ff7e22", fontSize: 20}}>364</Text>
                     </View>
                 </View>
-                <PlayerContainer/>
-            </View>
-        );
+                <Game/>
+            </View>);
     }
 }
 
