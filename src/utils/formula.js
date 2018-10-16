@@ -25,54 +25,49 @@ export const calcAngle = (point1, point2) => {
     return radiansToDegrees(Math.atan2(point1.y - point2.y, point1.x - point2.x));
 };
 
-export const mirrorAngle = (playground, point, angle) => {
+export const mirrorAngle = (box, point, angle) => {
 
-    if (point.y === playground.topLeft.y || point.y === playground.bottomLeft.y) {
+    if (point.y === box.y1 || point.y === box.y2) {
         return -angle;
-    } else if (point.x === playground.topLeft.x || point.x === playground.topRight.x) {
-        if (angle < 0) {
-            return -(180 + angle);
-        } else {
-            return 180 - angle;
-        }
+    } else if (point.x === box.x1 || point.x === box.x2) {
+        return 180 - angle;
     }
 }
 
-export const borderCollision = (playground, point, currentAngle) => {
+export const borderCollision = (box, point, currentAngle) => {
     const rayKf = angleKf(point, currentAngle);
     let points = [];
-
     if (currentAngle <= 90 && currentAngle >= 0) {
         points = [
             {
                 x: -rayKf.b / rayKf.k,
-                y: 0
+                y: box.y1
             },
             {
-                x: 0,
+                x: box.x1,
                 y: rayKf.b
             }
         ];
     } else if (currentAngle <= 0 && currentAngle >= -90) {
         points = [
             {
-                x: 0,
+                x: box.x1,
                 y: rayKf.b
             },
             {
-                x: (playground.bottomLeft.y - rayKf.b) / (rayKf.k),
-                y: playground.bottomLeft.y
+                x: (box.y2 - rayKf.b) / (rayKf.k),
+                y: box.y2
             }
         ];
     } else if (currentAngle <= -90 && currentAngle >= -180) {
         points = [
             {
-                x: (playground.bottomLeft.y - rayKf.b) / (rayKf.k),
-                y: playground.bottomLeft.y
+                x: (box.y2 - rayKf.b) / (rayKf.k),
+                y: box.y2
             },
             {
-                x: playground.topRight.x,
-                y: rayKf.k * playground.topRight.x + rayKf.b
+                x: box.x2,
+                y: rayKf.k * box.x2 + rayKf.b
             }
 
         ];
@@ -80,31 +75,143 @@ export const borderCollision = (playground, point, currentAngle) => {
         points = [
             {
                 x: -rayKf.b / rayKf.k,
-                y: 0
+                y: box.y1
             },
             {
-                x: playground.topRight.x,
-                y: rayKf.k * playground.topRight.x + rayKf.b
+                x: box.x2,
+                y: rayKf.k * box.x2 + rayKf.b
             }
         ];
     }
 
-    const dist1 = Math.sqrt(Math.pow(point.x - points[0].x, 2) + Math.pow(point.y - points[0].y, 2));
-    const dist2 = Math.sqrt(Math.pow(point.x - points[1].x, 2) + Math.pow(point.y - points[1].y, 2));
-    if (dist1 <= dist2) {
+    if (distance(point, points[0]) <= distance(point, points[1])) {
         return points[0];
     } else {
         return points[1];
     }
 };
 
-export const getRandomSeq = count => {
-    let seq = [...Array(count).keys()];
-    for (let i = seq.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        let tmp = seq[i];
-        seq[i] = seq[j];
-        seq[j] = tmp;
+export const distance = (point1, point2) => {
+    return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
+};
+
+export const boxesCollision = (boxes, point, currentAngle) => {
+    let pointCollision = {};
+    let nearestPointCollision = false;
+    let nearestBox = {};
+    boxes.map(box => {
+        pointCollision = boxCollision(box, point, currentAngle);
+        if (pointCollision) {
+            if (!nearestPointCollision) {
+                nearestPointCollision = pointCollision;
+                nearestBox = box;
+            } else {
+                if (distance(point, pointCollision) < distance(point, nearestPointCollision)) {
+                    nearestPointCollision = pointCollision;
+                    nearestBox = box;
+                }
+            }
+        }
+    });
+    if (!nearestPointCollision) {
+        return false;
+    }
+    return {box: nearestBox, point: nearestPointCollision};
+};
+
+export const boxCollision = (box, point, currentAngle) => {
+
+    if( currentAngle >= - 180 && currentAngle <= -90){
+        if( !(box.x2 > point.x && box.y2 > point.y) ){
+            return false;
+        }
+    }else if(currentAngle >= - 90 && currentAngle <= 0){
+        if( !(box.x1 < point.x && box.y2 > point.y) ){
+            return false;
+        }
+    }else if(currentAngle >=  0 && currentAngle <= 90){
+        if( !(box.x1 < point.x && box.y1 < point.y) ){
+            return false;
+        }
+    }else{
+        if( !(box.x2 > point.x && box.y1 < point.y) ){
+            return false;
+        }
+    }
+    if( point.x >= box.x1 && point.x <= box.x2
+        && point.y >= box.y1 && point.y <= box.y2){
+        return false;
+    }
+    const rayKf = angleKf(point, currentAngle);
+    let points = [];
+
+    let top = {
+        x: (box.y1 - rayKf.b) / (rayKf.k),
+        y: box.y1
+    };
+
+    if (top.x >= box.x1 && top.x <= box.x2) {
+        points.push(top);
+    }
+    let bottom = {
+        x: (box.y2 - rayKf.b) / (rayKf.k),
+        y: box.y2
+    };
+
+    if (bottom.x >= box.x1 && bottom.x <= box.x2) {
+        points.push(bottom);
+    }
+    let left = {
+        x: box.x1,
+        y: rayKf.k * box.x1 + rayKf.b
+    };
+
+    if (left.y >= box.y1 && left.y <= box.y2) {
+        points.push(left);
+    }
+    let right = {
+        x: box.x2,
+        y: rayKf.k * box.x2 + rayKf.b
+    };
+    if (right.y >= box.y1 && right.y <= box.y2) {
+        points.push(right);
+    }
+    if (points.length === 0) {
+        return false;
+    } else {
+        const dist1 = Math.sqrt(Math.pow(point.x - points[0].x, 2) + Math.pow(point.y - points[0].y, 2));
+        const dist2 = Math.sqrt(Math.pow(point.x - points[1].x, 2) + Math.pow(point.y - points[1].y, 2));
+        if (dist1 <= dist2) {
+            return points[0];
+        } else {
+            return points[1];
+        }
+    }
+};
+
+export const getRandomSeq = (length, count) => {
+    let seq = [...Array(length).keys()];
+    for (let i = 0; i < length - count; i++) {
+        let j = Math.floor(Math.random() * (length - i));
+        seq.splice(seq.indexOf(j), 1);
     }
     return seq;
-}
+};
+export const randomSingleSeq = (size) => {
+    let randCount = Math.floor(Math.random() * size);
+    if (randCount > 0) {
+        randCount--;
+        return getRandomSeq(size, randCount);
+    }
+    return [];
+};
+export const randomDoubleSeq = (size) => {
+    return [...randomSingleSeq(size), ...randomSingleSeq(size)].reduce((seq, key) => {
+        if (key in seq) {
+            seq[key] += 1;
+        } else {
+            seq[key] = 1;
+        }
+        return seq;
+    }, {});
+};

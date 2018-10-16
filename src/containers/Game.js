@@ -1,11 +1,10 @@
 import {connect} from 'react-redux'
 import Canvas from '../components/Canvas';
 import {moveObjects} from "../actions/PlayerActions";
-import {setPlayground} from "../actions/GameActions";
+import {setBoxes, setPlayground} from "../actions/GameActions";
 
 const mapStateToProps = store => {
     return {
-        player: store.player,
         playground: store.playground,
     }
 }
@@ -13,7 +12,8 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
     return {
         moveObjects: tapPosition => dispatch(moveObjects(tapPosition)),
-        setPlayground: area => dispatch(setPlayground(area))
+        setPlayground: area => dispatch(setPlayground(area)),
+        setBoxes: boxes => dispatch(setBoxes(boxes)),
     }
 }
 

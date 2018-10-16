@@ -4,8 +4,7 @@ import {Svg} from "expo";
 import {View} from "react-native";
 import Boxes from "./Boxes";
 import PlayerPoint from "./Player";
-import PlayerNose from "./PlayerNose";
-import Rays from "./Rays";
+import Player from "../../containers/Player";
 
 class Canvas extends Component {
 
@@ -43,14 +42,9 @@ class Canvas extends Component {
                      height={playground.bottomRight.y}
                      width={playground.bottomRight.x}
                      viewBox={viewBox}>
-                    <Boxes playground={playground}/>
                     <PlayerPoint/>
-                    <PlayerNose
-                        player={this.props.player}
-                        playground={playground}/>
-                    <Rays  player={this.props.player}
-                           playground={playground}
-                           count="3"/>
+                    <Player/>
+                    <Boxes playground={playground} setBoxes={this.props.setBoxes}/>
                 </Svg>
             </View>
         );
