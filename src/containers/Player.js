@@ -16,7 +16,7 @@ class PlayerContainer extends Component {
                 <Rays player={player}
                       boxes={boxes}
                       playground={playground}
-                      count="40"/>
+                      count="10"/>
             </Fragment>
         )
     }

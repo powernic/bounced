@@ -30,7 +30,11 @@ export const mirrorAngle = (box, point, angle) => {
     if (point.y === box.y1 || point.y === box.y2) {
         return -angle;
     } else if (point.x === box.x1 || point.x === box.x2) {
-        return 180 - angle;
+        if(angle < 0) {
+            return - (180 - angle);
+        }else{
+            return 180 - angle;
+        }
     }
 }
 

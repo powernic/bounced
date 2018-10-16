@@ -1,6 +1,6 @@
 import React from 'react';
 import {Svg} from "expo";
-import {borderCollision, boxCollision, boxesCollision, calcAngle, mirrorAngle} from "../../utils/formula"
+import {borderCollision, boxesCollision, calcAngle, mirrorAngle} from "../../utils/formula"
 
 const Rays = (props) => {
     const position = {
@@ -25,7 +25,9 @@ const Rays = (props) => {
                     y1:props.playground.topRight.y,
                     y2:props.playground.bottomRight.y}, point, angle);
             }else{
+               // console.log('Angle before: '+angle );
                 angle = mirrorAngle(boxCollisionItem.box, point, angle);
+               // console.log('Angle after: '+angle );
             }
         }
 
@@ -38,9 +40,11 @@ const Rays = (props) => {
                 y1: 0,
                 y2: props.playground.bottomRight.y
             }, point, angle);
+           // console.log(key+" NO - "+(point.x^0)+","+(point.y^0)+" => "+(endPoint.x^0)+","+(endPoint.y^0));
         }else{
             angle = calcAngle(endPoint,boxCollisionItem.point);
             endPoint = boxCollisionItem.point;
+          //  console.log(key+" Yes - "+(point.x^0)+","+(point.y^0)+" => "+(endPoint.x^0)+","+(endPoint.y^0));
         }
         width = Math.sqrt(Math.pow(endPoint.x - point.x, 2) + Math.pow(endPoint.y - point.y, 2));
         raycastTemplate.push(<Svg.Line key={key}
