@@ -5,6 +5,7 @@ import {View} from "react-native";
 import Boxes from "./Boxes";
 import PlayerPoint from "./Player";
 import Player from "../../containers/Player";
+import PlayerBall from "../../containers/PlayerBall";
 
 class Canvas extends Component {
 
@@ -28,23 +29,33 @@ class Canvas extends Component {
                         bottomRight: {x: area.width, y: area.height}
                     };
                     this.props.setPlayground(playground);
+                    this.props.setBoxes(playground);
                 }}
                 onStartShouldSetResponder={() => true}
-                onResponderMove={e => {
-                    this.props.moveObjects({
+                onResponderRelease={e => {
+                    this.props.startFire({
                         x: e.nativeEvent.locationX,
                         y: e.nativeEvent.locationY
                     })
+                }}
+                onResponderMove={e => {
+                    const tapPosition = {
+                        x: e.nativeEvent.locationX,
+                        y: e.nativeEvent.locationY
+                    };
+                    this.props.moveObjects(tapPosition);
+                    this.props.setRoute(tapPosition, playground,this.props.boxes);
                 }
                 }
             >
                 <Svg
-                     height={playground.bottomRight.y}
-                     width={playground.bottomRight.x}
-                     viewBox={viewBox}>
-                    <PlayerPoint/>
+                    height={playground.bottomRight.y}
+                    width={playground.bottomRight.x}
+                    viewBox={viewBox}>
+                    <PlayerPoint position={this.props.position}/>
                     <Player/>
-                    <Boxes playground={playground} setBoxes={this.props.setBoxes}/>
+                    <PlayerBall moveBalls={this.props.moveBalls}/>
+                    <Boxes playground={playground} positions={this.props.boxes.positions} info={this.props.boxes.info}/>
                 </Svg>
             </View>
         );

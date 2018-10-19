@@ -1,21 +1,26 @@
 import {connect} from 'react-redux'
 import Canvas from '../components/Canvas';
-import {moveObjects} from "../actions/PlayerActions";
-import {setBoxes, setPlayground} from "../actions/GameActions";
+import {moveBalls, moveObjects, startFire} from "../actions/PlayerActions";
+import {setBoxes, setPlayground, setRoute} from "../actions/GameActions";
 
 const mapStateToProps = store => {
     return {
         playground: store.playground,
+        position:store.player.playerPosition,
+        boxes: store.boxes
     }
-}
+};
 
 const mapDispatchToProps = dispatch => {
     return {
         moveObjects: tapPosition => dispatch(moveObjects(tapPosition)),
+        moveBalls: (tapPosition, ball) => dispatch(moveBalls(tapPosition, ball)),
+        startFire: () => dispatch(startFire()),
+        setRoute: (tapPosition,playground, boxes) => dispatch(setRoute(tapPosition,playground, boxes)),
         setPlayground: area => dispatch(setPlayground(area)),
-        setBoxes: boxes => dispatch(setBoxes(boxes)),
+        setBoxes: playground => dispatch(setBoxes(playground)),
     }
-}
+};
 
 const Game = connect(
     mapStateToProps,

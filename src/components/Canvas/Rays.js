@@ -1,65 +1,23 @@
 import React from 'react';
 import {Svg} from "expo";
-import {borderCollision, boxesCollision, calcAngle, mirrorAngle} from "../../utils/formula"
 
 const Rays = (props) => {
-    const position = {
-        x: 200,
-        y: 600
-    };
-
-    let angle = 0;
-    let width = 0;
+    const route = props.route;
     let raycastTemplate = [];
-    let point = position;
-    let endPoint = point;
-    let boxCollisionItem = false;
-    for (let key = 0; key < props.count; key++) {
-        if (key === 0) {
-            angle = calcAngle(position, props.player.position);
-        } else {
-            if (!boxCollisionItem) {
-                angle = mirrorAngle({
-                    x1:props.playground.topLeft.x,
-                    x2:props.playground.topRight.x,
-                    y1:props.playground.topRight.y,
-                    y2:props.playground.bottomRight.y}, point, angle);
-            }else{
-               // console.log('Angle before: '+angle );
-                angle = mirrorAngle(boxCollisionItem.box, point, angle);
-               // console.log('Angle after: '+angle );
-            }
-        }
-
-
-        boxCollisionItem =  boxesCollision(props.boxes, point, angle);
-        if (!boxCollisionItem) {
-            endPoint = borderCollision({
-                x1: 0,
-                x2: props.playground.bottomRight.x,
-                y1: 0,
-                y2: props.playground.bottomRight.y
-            }, point, angle);
-           // console.log(key+" NO - "+(point.x^0)+","+(point.y^0)+" => "+(endPoint.x^0)+","+(endPoint.y^0));
-        }else{
-            angle = calcAngle(endPoint,boxCollisionItem.point);
-            endPoint = boxCollisionItem.point;
-          //  console.log(key+" Yes - "+(point.x^0)+","+(point.y^0)+" => "+(endPoint.x^0)+","+(endPoint.y^0));
-        }
-        width = Math.sqrt(Math.pow(endPoint.x - point.x, 2) + Math.pow(endPoint.y - point.y, 2));
-        raycastTemplate.push(<Svg.Line key={key}
-                                       x1={point.x}
-                                       y1={point.y}
-                                       x2={endPoint.x}
-                                       y2={endPoint.y}
+    for (let ind in route) {
+        let nextInd = (parseInt(ind) + 1) + '';
+        if (!(nextInd in route)) break;
+        raycastTemplate.push(<Svg.Line key={ind}
+                                       x1={route[ind].x}
+                                       y1={route[ind].y}
+                                       x2={route[nextInd].x}
+                                       y2={route[nextInd].y}
                                        stroke="#fff"
                                        strokeWidth="5"
                                        strokeDasharray="0 10"
                                        strokeOpacity="0.6"
                                        strokeLinecap="round"/>);
-        point = endPoint;
-    }
-
+    };
     return raycastTemplate;
 };
 

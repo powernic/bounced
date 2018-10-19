@@ -7,7 +7,7 @@ const PlayerNose = (props) => {
         x: 200,
         y: 600
     };
-    const tapPosition = props.player.position;
+    const tapPosition = props.position;
     let points = [
         position.x+","+(position.y-100),
         (position.x-10)+","+(position.y),

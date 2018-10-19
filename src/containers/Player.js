@@ -4,19 +4,16 @@ import PlayerNose from "../components/Canvas/PlayerNose";
 import Rays from "../components/Canvas/Rays";
 import React from "react";
 
-
 class PlayerContainer extends Component {
+
     render() {
-        const {player, playground, boxes} = this.props;
+        const {position, route, playground} = this.props;
         return (
             <Fragment>
                 <PlayerNose
-                    player={player}
+                    position={position}
                     playground={playground}/>
-                <Rays player={player}
-                      boxes={boxes}
-                      playground={playground}
-                      count="10"/>
+                <Rays route={route} count="10"/>
             </Fragment>
         )
     }
@@ -24,11 +21,13 @@ class PlayerContainer extends Component {
 
 const mapStateToProps = store => {
     return {
-        player: store.player,
+        position: store.player.position,
+        route: store.player.route,
         playground: store.playground,
-        boxes: store.boxes
+        boxes: store.boxes.positions
     }
 };
+
 
 const Player = connect(
     mapStateToProps

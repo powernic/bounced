@@ -3,13 +3,11 @@ import {Svg} from "expo";
 import {randomDoubleSeq} from "../../utils/formula";
 
 const Boxes = (props) => {
-    const {playground,setBoxes} = props;
+    const {playground,positions,info} = props;
     const countBlocksInRow = 7;
     const blockSize = Math.round(playground.topRight.x - playground.topLeft.x) / countBlocksInRow;
     let blocks = [];
-    const blocksInfo = randomDoubleSeq(countBlocksInRow);
-    let blockPositions = [];
-    for (let key in blocksInfo) {
+    for (let key in positions) {
         blocks.push(
             <Svg.Rect key={"rect." + key}
                       x={blockSize * key}
@@ -21,12 +19,6 @@ const Boxes = (props) => {
                       height={blockSize}
                       fill="url(#grad)"/>
         );
-        blockPositions.push({
-            x1: blockSize * key,
-            x2: blockSize * key + blockSize,
-            y1: 100,
-            y2: 100 + blockSize
-        });
         blocks.push(<Svg.Text key={"text." + key}
                               fill="none"
                               stroke="#fff"
@@ -34,7 +26,7 @@ const Boxes = (props) => {
                               fontWeight="bold"
                               x={Math.round(blockSize * (key)) + 15}
                               y={Math.round(100 + blockSize / 2) + 5}>
-            {blocksInfo[key]}</Svg.Text>);
+            {info[key]}</Svg.Text>);
     }
     blocks.push(
         <Svg.Defs key="grad">
@@ -43,7 +35,6 @@ const Boxes = (props) => {
                 <Svg.Stop offset="1" stopColor={'#2834ff'} stopOpacity="1"/>
             </Svg.LinearGradient>
         </Svg.Defs>);
-    setBoxes(blockPositions);
     return blocks;
 };
 

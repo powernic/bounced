@@ -219,3 +219,68 @@ export const randomDoubleSeq = (size) => {
         return seq;
     }, {});
 };
+
+export const calculateNextPosition = (x, y, angle, divisor = 300) => {
+    const realAngle = angle - 90;
+    const stepsX = radiansToDegrees(Math.sin(degreesToRadian(realAngle))) / divisor ;
+    const stepsY = radiansToDegrees(Math.cos(degreesToRadian(realAngle))) / divisor ;
+    return {
+        x: x + stepsX,
+        y: y - stepsY,
+    }
+};
+
+export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes, count = 20) => {
+    let angle = 0;
+    let point = fromPosition;
+    const firstAngle = calcAngle(fromPosition, toPosition);
+    let route = [ ];
+    let endPoint = point;
+    let boxCollisionItem = false;
+    for (let key = 0; key < count; key++) {
+        if (key === 0) {
+            angle = firstAngle;
+        } else {
+            if (!boxCollisionItem) {
+                angle = mirrorAngle({
+                    x1:playground.topLeft.x,
+                    x2:playground.topRight.x,
+                    y1:playground.topRight.y,
+                    y2:playground.bottomRight.y}, point, angle);
+            }else{
+                angle = mirrorAngle(boxCollisionItem.box, point, angle);
+            }
+        }
+        boxCollisionItem =  boxesCollision(boxes, point, angle);
+        if (!boxCollisionItem) {
+            endPoint = borderCollision({
+                x1: 0,
+                x2: playground.bottomRight.x,
+                y1: 0,
+                y2: playground.bottomRight.y
+            }, point, angle);
+        }else{
+            angle = calcAngle(endPoint,boxCollisionItem.point);
+            endPoint = boxCollisionItem.point;
+        }
+        route.push({...point,angle});
+        point = endPoint;
+    }
+    return route;
+};
+
+export const getBlockPositions = (playground) => {
+    const countBlocksInRow = 7;
+    const blockSize = Math.round(playground.topRight.x - playground.topLeft.x) / countBlocksInRow;
+    const blocksInfo = randomDoubleSeq(countBlocksInRow);
+    let blockPositions = {};
+    for (let key in blocksInfo) {
+        blockPositions[key] = {
+            x1: blockSize * key,
+            x2: blockSize * key + blockSize,
+            y1: 100,
+            y2: 100 + blockSize
+        };
+    }
+    return {info:blocksInfo,positions:blockPositions};
+};
