@@ -1,8 +1,9 @@
 export const radiansToDegrees = radians => ((radians * 180) / Math.PI);
+const degreesToRadian = degrees => ((degrees * Math.PI) / 180);
 
 
 export const angleKf = (point, angle) => {
-    const k = Math.tan(angle * Math.PI / 180);
+    const k = Math.tan(degreesToRadian(angle));
     return {
         k: k,
         b: -k * point.x + point.y
@@ -30,9 +31,9 @@ export const mirrorAngle = (box, point, angle) => {
     if (point.y === box.y1 || point.y === box.y2) {
         return -angle;
     } else if (point.x === box.x1 || point.x === box.x2) {
-        if(angle < 0) {
-            return - (180 - angle);
-        }else{
+        if (angle < 0) {
+            return -(180 + angle);
+        } else {
             return 180 - angle;
         }
     }
@@ -100,50 +101,55 @@ export const distance = (point1, point2) => {
 };
 
 export const boxesCollision = (boxes, point, currentAngle) => {
-    let pointCollision = {};
     let nearestPointCollision = false;
     let nearestBox = {};
-    boxes.map(box => {
+    let boxInd;
+    for (let ind in boxes) {
+        let box = boxes[ind];
+        let pointCollision = {};
         pointCollision = boxCollision(box, point, currentAngle);
         if (pointCollision) {
             if (!nearestPointCollision) {
                 nearestPointCollision = pointCollision;
                 nearestBox = box;
+                boxInd = ind;
             } else {
                 if (distance(point, pointCollision) < distance(point, nearestPointCollision)) {
                     nearestPointCollision = pointCollision;
                     nearestBox = box;
+                    boxInd = ind;
                 }
             }
         }
-    });
+    }
+    ;
     if (!nearestPointCollision) {
         return false;
     }
-    return {box: nearestBox, point: nearestPointCollision};
+    return {box: nearestBox, point: nearestPointCollision, boxInd};
 };
 
 export const boxCollision = (box, point, currentAngle) => {
 
-    if( currentAngle >= - 180 && currentAngle <= -90){
-        if( !(box.x2 > point.x && box.y2 > point.y) ){
+    if (currentAngle >= -180 && currentAngle <= -90) {
+        if (!(box.x2 > point.x && box.y2 > point.y)) {
             return false;
         }
-    }else if(currentAngle >= - 90 && currentAngle <= 0){
-        if( !(box.x1 < point.x && box.y2 > point.y) ){
+    } else if (currentAngle >= -90 && currentAngle <= 0) {
+        if (!(box.x1 < point.x && box.y2 > point.y)) {
             return false;
         }
-    }else if(currentAngle >=  0 && currentAngle <= 90){
-        if( !(box.x1 < point.x && box.y1 < point.y) ){
+    } else if (currentAngle >= 0 && currentAngle <= 90) {
+        if (!(box.x1 < point.x && box.y1 < point.y)) {
             return false;
         }
-    }else{
-        if( !(box.x2 > point.x && box.y1 < point.y) ){
+    } else {
+        if (!(box.x2 > point.x && box.y1 < point.y)) {
             return false;
         }
     }
-    if( point.x >= box.x1 && point.x <= box.x2
-        && point.y >= box.y1 && point.y <= box.y2){
+    if (point.x >= box.x1 && point.x <= box.x2
+        && point.y >= box.y1 && point.y <= box.y2) {
         return false;
     }
     const rayKf = angleKf(point, currentAngle);
@@ -222,8 +228,8 @@ export const randomDoubleSeq = (size) => {
 
 export const calculateNextPosition = (x, y, angle, divisor = 300) => {
     const realAngle = angle - 90;
-    const stepsX = radiansToDegrees(Math.sin(degreesToRadian(realAngle))) / divisor ;
-    const stepsY = radiansToDegrees(Math.cos(degreesToRadian(realAngle))) / divisor ;
+    const stepsX = radiansToDegrees(Math.sin(degreesToRadian(realAngle))) / divisor;
+    const stepsY = radiansToDegrees(Math.cos(degreesToRadian(realAngle))) / divisor;
     return {
         x: x + stepsX,
         y: y - stepsY,
@@ -234,24 +240,27 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes, 
     let angle = 0;
     let point = fromPosition;
     const firstAngle = calcAngle(fromPosition, toPosition);
-    let route = [ ];
+    let route = [];
     let endPoint = point;
     let boxCollisionItem = false;
+    let type = 'playground';
+    let boxInd = '';
     for (let key = 0; key < count; key++) {
         if (key === 0) {
             angle = firstAngle;
         } else {
             if (!boxCollisionItem) {
                 angle = mirrorAngle({
-                    x1:playground.topLeft.x,
-                    x2:playground.topRight.x,
-                    y1:playground.topRight.y,
-                    y2:playground.bottomRight.y}, point, angle);
-            }else{
+                    x1: playground.topLeft.x,
+                    x2: playground.topRight.x,
+                    y1: playground.topRight.y,
+                    y2: playground.bottomRight.y
+                }, point, angle);
+            } else {
                 angle = mirrorAngle(boxCollisionItem.box, point, angle);
             }
         }
-        boxCollisionItem =  boxesCollision(boxes, point, angle);
+        boxCollisionItem = boxesCollision(boxes, point, angle);
         if (!boxCollisionItem) {
             endPoint = borderCollision({
                 x1: 0,
@@ -259,11 +268,15 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes, 
                 y1: 0,
                 y2: playground.bottomRight.y
             }, point, angle);
-        }else{
-            angle = calcAngle(endPoint,boxCollisionItem.point);
+            type = 'playground';
+            boxInd = null;
+        } else {
+            angle = calcAngle(endPoint, boxCollisionItem.point);
             endPoint = boxCollisionItem.point;
+            type = 'box';
+            boxInd = boxCollisionItem.boxInd;
         }
-        route.push({...point,angle});
+        route.push({...point, angle, type, boxInd});
         point = endPoint;
     }
     return route;
@@ -282,5 +295,5 @@ export const getBlockPositions = (playground) => {
             y2: 100 + blockSize
         };
     }
-    return {info:blocksInfo,positions:blockPositions};
+    return {info: blocksInfo, positions: blockPositions};
 };

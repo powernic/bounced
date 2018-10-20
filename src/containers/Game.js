@@ -16,9 +16,9 @@ const mapDispatchToProps = dispatch => {
         moveObjects: tapPosition => dispatch(moveObjects(tapPosition)),
         moveBalls: (tapPosition, ball) => dispatch(moveBalls(tapPosition, ball)),
         startFire: () => dispatch(startFire()),
-        setRoute: (tapPosition,playground, boxes) => dispatch(setRoute(tapPosition,playground, boxes)),
+        setRoute: (fromPoint,toPoint,playground, boxes) => dispatch(setRoute(fromPoint,toPoint,playground, boxes)),
         setPlayground: area => dispatch(setPlayground(area)),
-        setBoxes: playground => dispatch(setBoxes(playground)),
+        setBoxes: playground => dispatch(setBoxes(playground))
     }
 };
 

@@ -8,11 +8,13 @@ export const moveObjects = tapPosition => ({
     tapPosition,
 });
 
-export const moveBalls = (tapPosition,ball) => ({
-    type: MOVE_BALLS,
-    tapPosition,
-    ball
-});
+export const moveBalls = (tapPosition,ball) => {
+    return {
+        type: MOVE_BALLS,
+        tapPosition,
+        ball
+    }
+};
 
 
 export const startFire = () =>  ({

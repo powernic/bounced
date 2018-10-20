@@ -44,7 +44,7 @@ class Canvas extends Component {
                         y: e.nativeEvent.locationY
                     };
                     this.props.moveObjects(tapPosition);
-                    this.props.setRoute(tapPosition, playground,this.props.boxes);
+                    this.props.setRoute(this.props.position,tapPosition, playground,this.props.boxes);
                 }
                 }
             >
