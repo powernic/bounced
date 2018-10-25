@@ -3,6 +3,8 @@ export const SET_BOXES = 'SET_BOXES';
 export const SET_ROUTE = 'SET_ROUTE';
 export const TOUCH_BOX = 'TOUCH_BOX';
 export const REMOVE_BOX = 'REMOVE_BOX';
+export const ADD_BOXES_ROW = 'ADD_BOXES_ROW';
+export const BOXES_INIT = 'BOXES_INIT';
 
 export const setPlayground = area => ({
     type: SET_PLAYGROUND,
@@ -11,6 +13,16 @@ export const setPlayground = area => ({
 
 export const setBoxes = playground => ({
     type: SET_BOXES,
+    payload: playground,
+});
+
+export const addBoxesRow = playground => ({
+    type: ADD_BOXES_ROW,
+    payload: playground,
+});
+
+export const boxesInit = playground => ({
+    type: BOXES_INIT,
     payload: playground,
 });
 

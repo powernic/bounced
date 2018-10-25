@@ -1,7 +1,7 @@
 import {connect} from 'react-redux'
 import Canvas from '../components/Canvas';
 import {moveBalls, moveObjects, startFire} from "../actions/PlayerActions";
-import {setBoxes, setPlayground, setRoute} from "../actions/GameActions";
+import {addBoxesRow, boxesInit, setBoxes, setPlayground, setRoute} from "../actions/GameActions";
 
 const mapStateToProps = store => {
     return {
@@ -14,11 +14,13 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
     return {
         moveObjects: tapPosition => dispatch(moveObjects(tapPosition)),
-        moveBalls: (tapPosition, ball) => dispatch(moveBalls(tapPosition, ball)),
-        startFire: () => dispatch(startFire()),
+        moveBalls: (ball) => dispatch(moveBalls( ball)),
+        startFire: (tapPosition) => dispatch(startFire(tapPosition)),
         setRoute: (fromPoint,toPoint,playground, boxes) => dispatch(setRoute(fromPoint,toPoint,playground, boxes)),
         setPlayground: area => dispatch(setPlayground(area)),
-        setBoxes: playground => dispatch(setBoxes(playground))
+        setBoxes: playground => dispatch(setBoxes(playground)),
+        addBoxesRow: playground => dispatch(addBoxesRow(playground)),
+        boxesInit:playground => dispatch(boxesInit(playground)),
     }
 };
 

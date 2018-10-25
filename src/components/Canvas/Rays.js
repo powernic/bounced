@@ -17,7 +17,7 @@ const Rays = (props) => {
                                        strokeDasharray="0 10"
                                        strokeOpacity="0.6"
                                        strokeLinecap="round"/>);
-    };
+    }
     return raycastTemplate;
 };
 

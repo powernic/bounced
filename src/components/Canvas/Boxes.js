@@ -3,34 +3,39 @@ import {Svg} from "expo";
 import {randomDoubleSeq} from "../../utils/formula";
 
 const Boxes = (props) => {
-    const {playground,positions,info} = props;
-    const countBlocksInRow = 7;
-    const blockSize = Math.round(playground.topRight.x - playground.topLeft.x) / countBlocksInRow;
+    const {boxes} = props;
+    const {boxesPositions,board,config} = boxes;
     let blocks = [];
-    for (let key in positions) {
+    for(let i =0; i< boxesPositions.length; i++){
         blocks.push(
-            <Svg.Rect key={"rect." + key}
-                      x={blockSize * key}
-                      y="100"
+            <Svg.Rect key={"rect." + i }
+                      x={boxesPositions[i].x1}
+                      y={boxesPositions[i].y1}
                       rx="0" ry="0"
                       stroke="#fff"
                       strokeWidth="2"
-                      width={blockSize}
-                      height={blockSize}
+                      width={config.blockSize}
+                      height={config.blockSize}
                       fill="url(#grad)"/>
         );
-        blocks.push(<Svg.Text key={"text." + key}
-                              fill="none"
-                              stroke="#fff"
-                              fontSize="20"
-                              fontWeight="bold"
-                              x={Math.round(blockSize * (key)) + 15}
-                              y={Math.round(100 + blockSize / 2) + 5}>
-            {info[key]}</Svg.Text>);
+    }
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            const block = board[i][j];
+            if(block === 0) continue;
+            blocks.push(<Svg.Text key={"text." + i + "-" + j}
+                                  fill="none"
+                                  stroke="#fff"
+                                  fontSize="20"
+                                  fontWeight="bold"
+                                  x={Math.round(config.blockSize * (j)) + 15}
+                                  y={Math.round(i*config.blockSize + config.blockSize / 2) + 5}>
+            {block}</Svg.Text>);
+        }
     }
     blocks.push(
         <Svg.Defs key="grad">
-            <Svg.LinearGradient id="grad" x1="0" y1="0" x2={blockSize} y2="0">
+            <Svg.LinearGradient id="grad" x1="0" y1="0" x2={config.blockSize} y2="0">
                 <Svg.Stop offset="0" stopColor={'#59ff00'} stopOpacity="1"/>
                 <Svg.Stop offset="1" stopColor={'#2834ff'} stopOpacity="1"/>
             </Svg.LinearGradient>

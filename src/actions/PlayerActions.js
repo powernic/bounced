@@ -1,6 +1,10 @@
 export const MOVE_OBJECTS = 'MOVE_OBJECTS';
 export const MOVE_BALLS = 'MOVE_BALLS';
 export const START_FIRE = 'START_FIRE';
+export const STOP_FIRE = 'STOP_FIRE';
+export const NEXT_LEVEL = 'NEXT_LEVEL';
+
+
 
 
 export const moveObjects = tapPosition => ({
@@ -11,12 +15,18 @@ export const moveObjects = tapPosition => ({
 export const moveBalls = (tapPosition,ball) => {
     return {
         type: MOVE_BALLS,
-        tapPosition,
         ball
     }
 };
 
 
-export const startFire = () =>  ({
-    type: START_FIRE
+export const startFire = (tapPosition) =>  ({
+    type: START_FIRE,
+    payload: tapPosition
+});
+export const stopFire = () =>  ({
+    type: STOP_FIRE
+});
+export const nextLevel = () =>  ({
+    type: NEXT_LEVEL
 });

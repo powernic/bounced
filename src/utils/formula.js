@@ -104,7 +104,7 @@ export const boxesCollision = (boxes, point, currentAngle) => {
     let nearestPointCollision = false;
     let nearestBox = {};
     let boxInd;
-    for (let ind in boxes) {
+    for (let ind = 0; ind < boxes.length; ind++) {
         let box = boxes[ind];
         let pointCollision = {};
         pointCollision = boxCollision(box, point, currentAngle);
@@ -215,12 +215,12 @@ export const randomSingleSeq = (size) => {
     }
     return [];
 };
-export const randomDoubleSeq = (size) => {
+export const randomDoubleSeq = (size, multiplier = 1) => {
     return [...randomSingleSeq(size), ...randomSingleSeq(size)].reduce((seq, key) => {
         if (key in seq) {
-            seq[key] += 1;
+            seq[key] *= 2;
         } else {
-            seq[key] = 1;
+            seq[key] = multiplier;
         }
         return seq;
     }, {});
@@ -236,31 +236,21 @@ export const calculateNextPosition = (x, y, angle, divisor = 300) => {
     }
 };
 
-export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes, count = 20) => {
+export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) => {
     let angle = 0;
     let point = fromPosition;
     const firstAngle = calcAngle(fromPosition, toPosition);
+    const {board, boxesPositions} = boxes
     let route = [];
     let endPoint = point;
     let boxCollisionItem = false;
     let type = 'playground';
     let boxInd = '';
-    for (let key = 0; key < count; key++) {
-        if (key === 0) {
-            angle = firstAngle;
-        } else {
-            if (!boxCollisionItem) {
-                angle = mirrorAngle({
-                    x1: playground.topLeft.x,
-                    x2: playground.topRight.x,
-                    y1: playground.topRight.y,
-                    y2: playground.bottomRight.y
-                }, point, angle);
-            } else {
-                angle = mirrorAngle(boxCollisionItem.box, point, angle);
-            }
-        }
-        boxCollisionItem = boxesCollision(boxes, point, angle);
+    let prevType = '';
+    let prev2Type = '';
+    angle = firstAngle;
+    while (true) {
+        boxCollisionItem = boxesCollision(boxesPositions, point, angle);
         if (!boxCollisionItem) {
             endPoint = borderCollision({
                 x1: 0,
@@ -277,23 +267,38 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes, 
             boxInd = boxCollisionItem.boxInd;
         }
         route.push({...point, angle, type, boxInd});
+        if (point.y > 600) {
+            break;
+        }
+        /*
+        if (prev2Type === 'box' && boxInd !== null) {
+            const currentEl = boxesPositions[boxInd].board;
+            if(boxes.board[currentEl.row][currentEl.column] < 2){
+                break;
+            }
+        }*/
+        prev2Type = prevType;
+        prevType = type;
         point = endPoint;
+        if (!boxCollisionItem) {
+            angle = mirrorAngle({
+                x1: playground.topLeft.x,
+                x2: playground.topRight.x,
+                y1: playground.topRight.y,
+                y2: playground.bottomRight.y
+            }, point, angle);
+        } else {
+            angle = mirrorAngle(boxCollisionItem.box, point, angle);
+        }
     }
     return route;
 };
 
-export const getBlockPositions = (playground) => {
-    const countBlocksInRow = 7;
-    const blockSize = Math.round(playground.topRight.x - playground.topLeft.x) / countBlocksInRow;
-    const blocksInfo = randomDoubleSeq(countBlocksInRow);
-    let blockPositions = {};
+export const getBoxesRow = (count, multiplier) => {
+    const blocksInfo = randomDoubleSeq(count, multiplier);
+    let row = Array(count).fill(0);
     for (let key in blocksInfo) {
-        blockPositions[key] = {
-            x1: blockSize * key,
-            x2: blockSize * key + blockSize,
-            y1: 100,
-            y2: 100 + blockSize
-        };
+        row[key] = blocksInfo[key];
     }
-    return {info: blocksInfo, positions: blockPositions};
+    return row;
 };
