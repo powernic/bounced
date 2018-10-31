@@ -48,7 +48,7 @@ class Canvas extends Component {
                 || Math.abs(this.currentMousePosition.locationY - this.prevMousePosition.locationY) > 1)) {
                 this.prevMousePosition = {...this.currentMousePosition};
                 const {moveObjects, setRoute, playground, position, boxes} = this.props;
-                const tapPosition = {
+                let tapPosition = {
                     x: this.currentMousePosition.locationX,
                     y: this.currentMousePosition.locationY
                 };

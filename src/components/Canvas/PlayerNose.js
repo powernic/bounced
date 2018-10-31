@@ -6,7 +6,7 @@ const PlayerPoint = (props) => {
 
     const getPoints = ({x, y}) => {
         const points = [
-            x + "," + (y - 100),
+            (x ) + "," + (y - 60),
             (x - 10) + "," + (y),
             (x + 10) + "," + (y)
         ];

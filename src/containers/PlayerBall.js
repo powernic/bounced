@@ -13,16 +13,15 @@ class PlayerBallContainer extends Component {
     getDuration = (
         from = {x: 0, y: 0},
         to = {x: 0, y: 0}) => {
-        const velocity = 5;
+        const velocity = 2;
         const length = distance(from,to);
         const t = length*velocity;
         return t ;
     };
 
     render() {
-        const {fireTo, fire, ball, moveBalls} = this.props;
+        const {fire, ball, moveBalls} = this.props;
         if (fire) {
-            //console.log(`FROM (${ball.from.x._value},${ball.from.y._value}) => (${ball.to.x._value},${ball.to.y._value})`);
             Animated.timing(ball.from, {
                 toValue:
                     {

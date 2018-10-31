@@ -20,38 +20,14 @@ const moveBalls = (state, action) => {
         };
     }
     const ballAnimated = {
-        from: new Animated.ValueXY({x: route[passedRouteInd + 1].x - 10, y: route[passedRouteInd + 1].y - 10}),
-        to: new Animated.ValueXY({x: route[passedRouteInd + 2].x - 10, y: route[passedRouteInd + 2].y - 10})
+        from: new Animated.ValueXY({x: route[passedRouteInd + 1].x-10 , y: route[passedRouteInd + 1].y-10}),
+        to: new Animated.ValueXY({x: route[passedRouteInd + 2].x-10 , y: route[passedRouteInd + 2].y-10})
     };
     return {
         ...state,
         ballAnimated,
         passedRouteInd: ++passedRouteInd
     };
-    /*if (!((passedRouteInd + 1) + '' in route)) {
-        const ball = state.playerPosition;
-        return {
-            ...state,
-            ball,
-            passedRouteInd: 0,
-            fire: false,
-        };
-    }
-    let nextRoutePoint = route[passedRouteInd + 1];
-    let bounceOff = false;
-    let ball = nextRoutePoint;
-    if (bounceOff) {
-        return {
-            ...state,
-            ball,
-            passedRouteInd: ++passedRouteInd
-        };
-    } else {
-        return {
-            ...state,
-            ball
-        };
-    }*/
 };
 
 export default moveBalls;

@@ -13,9 +13,6 @@ const Rays = (props) => {
                                        x2={route[nextInd].x}
                                        y2={route[nextInd].y}
                                        stroke="#fff"
-                                       strokeWidth="5"
-                                       strokeDasharray="0 10"
-                                       strokeOpacity="0.6"
                                        strokeLinecap="round"/>);
     }
     return raycastTemplate;

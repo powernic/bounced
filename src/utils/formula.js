@@ -26,6 +26,22 @@ export const calcAngle = (point1, point2) => {
     return radiansToDegrees(Math.atan2(point1.y - point2.y, point1.x - point2.x));
 };
 
+export const mirrorAngleBox = (box, point, angle, radius = 10) => {
+    return mirrorAngle({
+        x1: box.x1 - radius,
+        x2: box.x2 + radius,
+        y1: box.y1 - radius,
+        y2: box.y2 + radius,
+    }, point, angle);
+};
+export const mirrorAnglePlayground = (box, point, angle, radius = 10) => {
+    return mirrorAngle({
+        x1: box.x1 + radius,
+        x2: box.x2 - radius,
+        y1: box.y1 + radius,
+        y2: box.y2 - radius,
+    }, point, angle);
+};
 export const mirrorAngle = (box, point, angle) => {
 
     if (point.y === box.y1 || point.y === box.y2) {
@@ -39,52 +55,52 @@ export const mirrorAngle = (box, point, angle) => {
     }
 }
 
-export const borderCollision = (box, point, currentAngle) => {
+export const borderCollision = (box, point, currentAngle, radius = 10) => {
     const rayKf = angleKf(point, currentAngle);
     let points = [];
     if (currentAngle <= 90 && currentAngle >= 0) {
         points = [
             {
-                x: -rayKf.b / rayKf.k,
-                y: box.y1
+                x: (radius - rayKf.b) / rayKf.k,
+                y: box.y1 + radius
             },
             {
-                x: box.x1,
-                y: rayKf.b
+                x: box.x1 + radius,
+                y: rayKf.k * radius + rayKf.b
             }
         ];
     } else if (currentAngle <= 0 && currentAngle >= -90) {
         points = [
             {
-                x: box.x1,
-                y: rayKf.b
+                x: box.x1 + radius,
+                y: rayKf.k * radius + rayKf.b
             },
             {
-                x: (box.y2 - rayKf.b) / (rayKf.k),
-                y: box.y2
+                x: (box.y2 - radius - rayKf.b) / (rayKf.k),
+                y: box.y2 - radius
             }
         ];
     } else if (currentAngle <= -90 && currentAngle >= -180) {
         points = [
             {
-                x: (box.y2 - rayKf.b) / (rayKf.k),
-                y: box.y2
+                x: (box.y2 - radius - rayKf.b) / (rayKf.k),
+                y: box.y2 - radius
             },
             {
-                x: box.x2,
-                y: rayKf.k * box.x2 + rayKf.b
+                x: box.x2 - radius,
+                y: rayKf.k * (box.x2 - radius) + rayKf.b
             }
 
         ];
     } else {
         points = [
             {
-                x: -rayKf.b / rayKf.k,
-                y: box.y1
+                x: (radius - rayKf.b) / rayKf.k,
+                y: box.y1 + radius
             },
             {
-                x: box.x2,
-                y: rayKf.k * box.x2 + rayKf.b
+                x: box.x2 - radius,
+                y: rayKf.k * (box.x2 - radius) + rayKf.b
             }
         ];
     }
@@ -99,6 +115,80 @@ export const borderCollision = (box, point, currentAngle) => {
 export const distance = (point1, point2) => {
     return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
 };
+export const getNearestPoint = (point, targetPoint1, targetPoint2) => {
+    if (distance(point, targetPoint1) < distance(point, targetPoint2)) {
+        return targetPoint1;
+    } else {
+        return targetPoint2;
+    }
+};
+
+export const getCorner = (box, point) => {
+    switch (point.edge) {
+        case 'bottom':
+            return getNearestPoint(point, {x: box.x1, y: box.y2}, {x: box.x2, y: box.y2});
+        case 'top':
+            return getNearestPoint(point, {x: box.x1, y: box.y1}, {x: box.x2, y: box.y1});
+        case 'left':
+            return getNearestPoint(point, {x: box.x1, y: box.y1}, {x: box.x1, y: box.y2});
+        case 'right':
+            return getNearestPoint(point, {x: box.x2, y: box.y1}, {x: box.x2, y: box.y2});
+    }
+};
+
+export const circleToBoxCollision = (box, point, angle, radius = 10) => {
+    let toPoint = boxCollision({
+        x1: box.x1 - radius,
+        x2: box.x2 + radius,
+        y1: box.y1 - radius,
+        y2: box.y2 + radius
+    }, point, angle);
+    if (!toPoint) {
+        return false;
+    }
+    if ((toPoint.x <= box.x1 && toPoint.x >= box.x1 - radius
+        && toPoint.y >= box.y2 && toPoint.y <= box.y2 + radius)
+        || (toPoint.x <= box.x1 && toPoint.x >= box.x1 - radius
+            && toPoint.y <= box.y1 && toPoint.y >= box.y1 - radius)
+        || (toPoint.x >= box.x2 && toPoint.x <= box.x2 + radius
+            && toPoint.y <= box.y1 && toPoint.y >= box.y1 - radius)
+        || (toPoint.x >= box.x2 && toPoint.x <= box.x2 + radius
+            && toPoint.y >= box.y2 && toPoint.y <= box.y2 + radius)) {
+
+        const corner = getCorner(box, toPoint);
+
+        const tan = Math.tan(degreesToRadian(angle));
+        const b = point.y - tan * point.x;
+        const x = corner.x;
+        const y = corner.y;
+        const A = 1 + tan * tan;
+        const B = 2 * (b * tan - x - y * tan);
+        const C = x * x + y * y - radius * radius + b * b - 2 * y * b;
+        const D = B * B - 4 * A * C;
+        if (D < 0) {
+            return false;
+        }
+        const x21 = (-B + Math.sqrt(D)) / (2 * A);
+        const y21 = tan * x21 + b;
+
+        const x22 = (-B - Math.sqrt(D)) / (2 * A);
+        const y22 = tan * x22 + b;
+
+        const point1 = {x: x21, y: y21};
+        const point2 = {x: x22, y: y22};
+
+        if (distance(point, point1) < distance(point, point2)) {
+            point1.angle = radiansToDegrees(Math.atan2(point1.x - x,point1.y - y));
+            return point1;
+        } else {
+            point2.angle = radiansToDegrees(Math.atan2(point2.x - x,point2.y - y));
+            return point2;
+        }
+    } else {
+        return {x: toPoint.x, y: toPoint.y};
+    }
+
+};
 
 export const boxesCollision = (boxes, point, currentAngle) => {
     let nearestPointCollision = false;
@@ -107,7 +197,7 @@ export const boxesCollision = (boxes, point, currentAngle) => {
     for (let ind = 0; ind < boxes.length; ind++) {
         let box = boxes[ind];
         let pointCollision = {};
-        pointCollision = boxCollision(box, point, currentAngle);
+        pointCollision = circleToBoxCollision(box, point, currentAngle);
         if (pointCollision) {
             if (!nearestPointCollision) {
                 nearestPointCollision = pointCollision;
@@ -129,6 +219,15 @@ export const boxesCollision = (boxes, point, currentAngle) => {
     return {box: nearestBox, point: nearestPointCollision, boxInd};
 };
 
+
+/**
+ *
+ * @param box {{x1,x2,y1,y2}}
+ * @param point {{x,y}}
+ * @param currentAngle {Number} Angle in degrees
+ * @returns {{x,y,edge}} Collision point
+ *
+ */
 export const boxCollision = (box, point, currentAngle) => {
 
     if (currentAngle >= -180 && currentAngle <= -90) {
@@ -161,7 +260,7 @@ export const boxCollision = (box, point, currentAngle) => {
     };
 
     if (top.x >= box.x1 && top.x <= box.x2) {
-        points.push(top);
+        points.push({...top, edge: 'top'});
     }
     let bottom = {
         x: (box.y2 - rayKf.b) / (rayKf.k),
@@ -169,7 +268,7 @@ export const boxCollision = (box, point, currentAngle) => {
     };
 
     if (bottom.x >= box.x1 && bottom.x <= box.x2) {
-        points.push(bottom);
+        points.push({...bottom, edge: 'bottom'});
     }
     let left = {
         x: box.x1,
@@ -177,14 +276,14 @@ export const boxCollision = (box, point, currentAngle) => {
     };
 
     if (left.y >= box.y1 && left.y <= box.y2) {
-        points.push(left);
+        points.push({...left, edge: 'left'});
     }
     let right = {
         x: box.x2,
         y: rayKf.k * box.x2 + rayKf.b
     };
     if (right.y >= box.y1 && right.y <= box.y2) {
-        points.push(right);
+        points.push({...right, edge: 'right'});
     }
     if (points.length === 0) {
         return false;
@@ -240,16 +339,18 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
     let angle = 0;
     let point = fromPosition;
     const firstAngle = calcAngle(fromPosition, toPosition);
-    const {board, boxesPositions} = boxes
+    const {board, boxesPositions} = boxes;
     let route = [];
     let endPoint = point;
-    let boxCollisionItem = false;
+    let boxCollisionItem;
     let type = 'playground';
     let boxInd = '';
     let prevType = '';
     let prev2Type = '';
     angle = firstAngle;
+    let i = 0;
     while (true) {
+        i++;
         boxCollisionItem = boxesCollision(boxesPositions, point, angle);
         if (!boxCollisionItem) {
             endPoint = borderCollision({
@@ -270,25 +371,31 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
         if (point.y > 600) {
             break;
         }
-        /*
         if (prev2Type === 'box' && boxInd !== null) {
             const currentEl = boxesPositions[boxInd].board;
-            if(boxes.board[currentEl.row][currentEl.column] < 2){
+            if (boxes.board[currentEl.row][currentEl.column] < 2) {
                 break;
             }
-        }*/
+        }
         prev2Type = prevType;
         prevType = type;
         point = endPoint;
         if (!boxCollisionItem) {
-            angle = mirrorAngle({
+            angle = mirrorAnglePlayground({
                 x1: playground.topLeft.x,
                 x2: playground.topRight.x,
                 y1: playground.topRight.y,
                 y2: playground.bottomRight.y
             }, point, angle);
         } else {
-            angle = mirrorAngle(boxCollisionItem.box, point, angle);
+            if ('angle' in boxCollisionItem.point) {
+                angle = -boxCollisionItem.point.angle - 90;
+            }else{
+                angle = mirrorAngleBox(boxCollisionItem.box, point, angle);
+            }
+        }
+        if (i > 225) {
+            break;
         }
     }
     return route;
