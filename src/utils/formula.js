@@ -178,10 +178,10 @@ export const circleToBoxCollision = (box, point, angle, radius = 10) => {
         const point2 = {x: x22, y: y22};
 
         if (distance(point, point1) < distance(point, point2)) {
-            point1.angle = radiansToDegrees(Math.atan2(point1.x - x,point1.y - y));
+            point1.angle = radiansToDegrees(Math.atan2(point1.x - x, point1.y - y));
             return point1;
         } else {
-            point2.angle = radiansToDegrees(Math.atan2(point2.x - x,point2.y - y));
+            point2.angle = radiansToDegrees(Math.atan2(point2.x - x, point2.y - y));
             return point2;
         }
     } else {
@@ -390,7 +390,7 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
         } else {
             if ('angle' in boxCollisionItem.point) {
                 angle = -boxCollisionItem.point.angle - 90;
-            }else{
+            } else {
                 angle = mirrorAngleBox(boxCollisionItem.box, point, angle);
             }
         }

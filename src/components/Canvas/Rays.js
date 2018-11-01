@@ -8,7 +8,7 @@ const Rays = (props) => {
         let nextInd = (parseInt(ind) + 1) + '';
         if (!(nextInd in route)) break;
         raycastTemplate.push(<Svg.Line key={ind}
-                                       x1={route[ind].x}
+                                       x1={route[ind].x}w
                                        y1={route[ind].y}
                                        x2={route[nextInd].x}
                                        y2={route[nextInd].y}

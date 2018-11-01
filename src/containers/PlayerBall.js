@@ -1,12 +1,11 @@
 import {connect} from 'react-redux'
 import {Component, Fragment} from "react";
 import React from "react";
-import {Svg} from "expo";
-import {moveBalls, moveObjects} from "../actions/PlayerActions";
+import {moveBalls} from "../actions/PlayerActions";
 import {Animated, Easing} from "react-native";
 import {distance} from "../utils/formula";
+import PropTypes from 'prop-types';
 
-const {Circle} = Svg;
 
 class PlayerBallContainer extends Component {
 
@@ -14,9 +13,8 @@ class PlayerBallContainer extends Component {
         from = {x: 0, y: 0},
         to = {x: 0, y: 0}) => {
         const velocity = 2;
-        const length = distance(from,to);
-        const t = length*velocity;
-        return t ;
+        const length = distance(from, to);
+        return length * velocity;
     };
 
     render() {
@@ -29,9 +27,9 @@ class PlayerBallContainer extends Component {
                         y: ball.to.y._value
                     },
                 easing: Easing.linear,
-                duration:  this.getDuration(
-                    {x:ball.from.x._value,y:ball.from.y._value},
-                    {x:ball.to.x._value,y:ball.to.y._value})
+                duration: this.getDuration(
+                    {x: ball.from.x._value, y: ball.from.y._value},
+                    {x: ball.to.x._value, y: ball.to.y._value})
             }).start(() => {
                 moveBalls(ball.to)
             });
@@ -64,6 +62,15 @@ const mapDispatchToProps = dispatch => {
     }
 };
 
+
+PlayerBallContainer.propTypes = {
+    ball: PropTypes.shape(
+        {
+            from: PropTypes.object,
+            to: PropTypes.object
+        }),
+    fire: PropTypes.bool
+};
 
 export default connect(
     mapStateToProps,

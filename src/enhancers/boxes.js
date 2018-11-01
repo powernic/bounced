@@ -18,7 +18,7 @@ export const moveBalls = ({getState, dispatch}) => next => action => {
                 }
             }
 
-            if(nextState.player.ballAnimated.from.y > 600){
+            if (nextState.player.ballAnimated.from.y > 600) {
                 //Добавить 1 очко
                 //Добавить боксов
 
@@ -33,15 +33,19 @@ export const moveBalls = ({getState, dispatch}) => next => action => {
             prevState = getState();
             result = next(action);
             nextState = getState();
-            if(nextState.boxes.boxesPositions !== prevState.boxes.boxesPositions){
+            if (nextState.boxes.boxesPositions !== prevState.boxes.boxesPositions) {
                 const ind = nextState.player.passedRouteInd;
                 const currentPoint = nextState.player.route[ind];
-                const nextPoint = nextState.player.route[ind+1];
+                const nextPoint = nextState.player.route[ind + 1];
                 dispatch(setRoute(
-                    {x:currentPoint.x,
-                    y:currentPoint.y},
-                    {x:nextPoint.x,
-                        y:nextPoint.y},nextState.playground,nextState.boxes));
+                    {
+                        x: currentPoint.x,
+                        y: currentPoint.y
+                    },
+                    {
+                        x: nextPoint.x,
+                        y: nextPoint.y
+                    }, nextState.playground, nextState.boxes));
             }
             return result;
         default:

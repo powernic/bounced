@@ -6,7 +6,7 @@ const PlayerPoint = (props) => {
 
     const getPoints = ({x, y}) => {
         const points = [
-            (x ) + "," + (y - 60),
+            (x) + "," + (y - 60),
             (x - 10) + "," + (y),
             (x + 10) + "," + (y)
         ];
@@ -18,11 +18,11 @@ const PlayerPoint = (props) => {
         return "rotate(" + (angle - 90) + "," + pointFrom.x + "," + pointFrom.y + ")";
     };
 
-    const {tapPosition,playerPosition} = props;
+    const {tapPosition, playerPosition} = props;
 
     return (
         <Svg.Polygon
-            transform={getTransform(playerPosition,tapPosition)}
+            transform={getTransform(playerPosition, tapPosition)}
             points={getPoints(playerPosition)}
             fillOpacity="0.5"
             fill="#FFFFFF"/>

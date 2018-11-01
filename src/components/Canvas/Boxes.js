@@ -4,11 +4,11 @@ import {randomDoubleSeq} from "../../utils/formula";
 
 const Boxes = (props) => {
     const {boxes} = props;
-    const {boxesPositions,board,config} = boxes;
+    const {boxesPositions, board, config} = boxes;
     let blocks = [];
-    for(let i =0; i< boxesPositions.length; i++){
+    for (let i = 0; i < boxesPositions.length; i++) {
         blocks.push(
-            <Svg.Rect key={"rect." + i }
+            <Svg.Rect key={"rect." + i}
                       x={boxesPositions[i].x1}
                       y={boxesPositions[i].y1}
                       rx="0" ry="0"
@@ -22,15 +22,15 @@ const Boxes = (props) => {
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
             const block = board[i][j];
-            if(block === 0) continue;
+            if (block === 0) continue;
             blocks.push(<Svg.Text key={"text." + i + "-" + j}
                                   fill="none"
                                   stroke="#fff"
                                   fontSize="20"
                                   fontWeight="bold"
                                   x={Math.round(config.blockSize * (j)) + 15}
-                                  y={Math.round(i*config.blockSize + config.blockSize / 2) + 5}>
-            {block}</Svg.Text>);
+                                  y={Math.round(i * config.blockSize + config.blockSize / 2) + 5}>
+                {block}</Svg.Text>);
         }
     }
     blocks.push(

@@ -25,8 +25,8 @@ const initialState = {
         rotate: ''
     },
     ballAnimated: {
-        from : new Animated.ValueXY({x:190,y:590}),
-        to: new Animated.ValueXY({x:190,y:590})
+        from: new Animated.ValueXY({x: 190, y: 590}),
+        to: new Animated.ValueXY({x: 190, y: 590})
     },
     fire: false
 };

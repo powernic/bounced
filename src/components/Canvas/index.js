@@ -4,7 +4,6 @@ import {Svg} from "expo";
 import {View} from "react-native";
 import Boxes from "./Boxes";
 import PlayerBallContainer from "../../containers/PlayerBall";
-import PlayerBallViewContainer from "../../containers/PlayerTest";
 import PlayerNoseContainer from "../../containers/PlayerNose";
 import RaysContainer from "../../containers/Rays";
 

@@ -62,14 +62,14 @@ const boxesInit = (state, action) => {
 };
 
 const touchBox = (state, action) => {
-    const {boxesPositions,board} = state;
+    const {boxesPositions, board} = state;
     const ind = action.payload;
     let newBoard = board.slice();
-    const {row,column} = boxesPositions[ind].board;
+    const {row, column} = boxesPositions[ind].board;
     newBoard[row][column]--;
     if (newBoard[row][column] === 0) {
         let newPositions = boxesPositions.slice();
-        newPositions.splice(ind,1);
+        newPositions.splice(ind, 1);
         return {...state, boxesPositions: newPositions, board: newBoard};
     } else {
         return {...state, board: newBoard};
