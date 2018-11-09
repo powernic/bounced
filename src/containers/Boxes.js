@@ -2,13 +2,14 @@ import {connect} from 'react-redux'
 import {Component, Fragment} from "react";
 import React from "react";
 import PropTypes from 'prop-types';
+import Boxes from "../components/Canvas/Boxes";
 
 class BoxesContainer extends Component {
 
     render() {
         return (
             <Fragment>
-                <Rays route={this.props.route}/>
+                <Boxes boxes={this.props.boxes}/>
             </Fragment>
         );
     }
@@ -16,17 +17,8 @@ class BoxesContainer extends Component {
 
 const mapStateToProps = store => {
     return {
-        route: store.player.route,
+        boxes: store.boxes,
     }
-};
-
-BoxesContainer.propTypes = {
-    route: PropTypes.arrayOf(PropTypes.shape({
-        x: PropTypes.number, y: PropTypes.number,
-        angle: PropTypes.number,
-        type: PropTypes.oneOf(['box', 'playground']),
-        boxInd: PropTypes.number
-    })),
 };
 
 export default connect(

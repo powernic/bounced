@@ -16,9 +16,9 @@ export const setBoxes = playground => ({
     payload: playground,
 });
 
-export const addBoxesRow = playground => ({
+export const addBoxesRow = level => ({
     type: ADD_BOXES_ROW,
-    payload: playground,
+    payload: level,
 });
 
 export const boxesInit = playground => ({

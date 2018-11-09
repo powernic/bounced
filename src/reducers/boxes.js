@@ -86,7 +86,7 @@ export function boxesReducer(state = initialState, action) {
             const newBoard = getNewBoard(
                 state.board,
                 state.config.countBlocksInRow,
-                action.payload.level);
+                action.payload);
             return {
                 ...state,
                 board: newBoard,

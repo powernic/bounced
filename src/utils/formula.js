@@ -368,7 +368,7 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
             boxInd = boxCollisionItem.boxInd;
         }
         route.push({...point, angle, type, boxInd});
-        if (point.y > 600) {
+        if (route.length > 1 && point.y >= 600) {
             break;
         }
         if (prev2Type === 'box' && boxInd !== null) {

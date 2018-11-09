@@ -19,6 +19,7 @@ const Boxes = (props) => {
                       fill="url(#grad)"/>
         );
     }
+    /*'#' + (Math.random().toString(16) + "000000").substring(2,8)*/
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
             const block = board[i][j];

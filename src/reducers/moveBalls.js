@@ -3,69 +3,68 @@ import {moveObjects} from "../actions/PlayerActions";
 import {SET_ROUTE} from "../actions/GameActions";
 import {Animated} from "react-native";
 
+const isLastBallPosition = (toRouteInd, route) => {
+    return route.length === toRouteInd + 3;
+};
 
 const moveBalls = (state, action) => {
-    let {route, passedRouteInd} = state;
-    if (!((passedRouteInd + 2) + '' in route)) {
-        const position = {x: state.playerPosition.x - 10, y: state.playerPosition.y - 10};
-        const ballAnimated = {
-            from: new Animated.ValueXY(position),
-            to: new Animated.ValueXY(position)
-        };
+    let {route, toRouteInd} = state;
+    if (route.length === toRouteInd + 1) {
         return {
             ...state,
-            ballAnimated,
-            passedRouteInd: 0,
-            fire: false,
+            switchLevel: true
+        }
+    } else {
+        const ballToPosition = {x: route[toRouteInd + 1].x - 10, y: route[toRouteInd + 1].y - 10};
+
+        return {
+            ...state,
+            ballToPosition,
+            toRouteInd: ++toRouteInd
         };
     }
-    const ballAnimated = {
-        from: new Animated.ValueXY({x: route[passedRouteInd + 1].x - 10, y: route[passedRouteInd + 1].y - 10}),
-        to: new Animated.ValueXY({x: route[passedRouteInd + 2].x - 10, y: route[passedRouteInd + 2].y - 10})
-    };
-    return {
-        ...state,
-        ballAnimated,
-        passedRouteInd: ++passedRouteInd
-    };
 };
 
 export default moveBalls;
 
 
 export const startFire = (state, action) => {
-    let {route, passedRouteInd} = state;
-    const ballAnimated = {
-        from: new Animated.ValueXY({x: route[passedRouteInd].x - 10, y: route[passedRouteInd].y - 10}),
-        to: new Animated.ValueXY({x: route[passedRouteInd + 1].x - 10, y: route[passedRouteInd + 1].y - 10})
-    };
+    let {route, toRouteInd} = state;
+    if (route.length == 0) {
+        console.error("Route is empty");
+        return state;
+    }
+    const ballToPosition = {x: route[toRouteInd + 1].x - 10, y: route[toRouteInd + 1].y - 10};
     return {
         ...state,
-        ballAnimated,
+        ballToPosition,
         fireTo: action.payload,
-        passedRouteInd: 0,
+        toRouteInd: 1,
         fire: true,
+        position: {x: 0, y: 0},
     };
 };
 
 
 export const stopFire = (state) => {
-    const position = {x: state.playerPosition.x - 10, y: state.playerPosition.y - 10};
-    const ballAnimated = {
-        from: new Animated.ValueXY(position),
-        to: new Animated.ValueXY(position)
-    };
+    const ballToPosition = {x: state.playerPosition.x - 10, y: state.playerPosition.y - 10};
     return {
         ...state,
-        ballAnimated,
-        passedRouteInd: 0,
+        ballToPosition,
+        toRouteInd: 0,
         fire: false,
     };
 };
-export const nextLevel = (state) => {
+export const nextLevel = (state, action) => {
     return {
         ...state,
-        level: state.level + 1
+        level: state.level + 1,
+        route: [],
+        fire: false,
+        playerPosition: {x: action.payload.x + 10, y: action.payload.y + 10},
+        position: {x: 0, y: 0},
+        toRouteInd: 0,
+        switchLevel: false
     };
 };
 
@@ -73,16 +72,11 @@ export const setRoute = (state, action) => {
     if (!action.payload) return state;
     const {fromPoint, toPoint, playground, boxes} = action.payload;
     const route = calculateRaysRoute(fromPoint, toPoint, playground, boxes);
-    if (state.passedRouteInd > 0) {
-        return {
-            ...state,
-            passedRouteInd: 0,
-            route
-        };
-    } else {
-        return {
-            ...state,
-            route
-        };
-    }
+
+
+    return {
+        ...state,
+        toRouteInd: 0,
+        route
+    };
 };

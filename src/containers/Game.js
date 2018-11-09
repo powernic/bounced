@@ -6,6 +6,7 @@ import {addBoxesRow, boxesInit, setBoxes, setPlayground, setRoute} from "../acti
 const mapStateToProps = store => {
     return {
         playground: store.playground,
+        fire:store.player.fire,
         position:store.player.playerPosition,
         boxes: store.boxes
     }
@@ -14,15 +15,15 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
     return {
         moveObjects: tapPosition => dispatch(moveObjects(tapPosition)),
-        moveBalls: (ball) => dispatch(moveBalls( ball)),
+        moveBalls: () => dispatch(moveBalls()),
         startFire: (tapPosition) => dispatch(startFire(tapPosition)),
-        setRoute: (fromPoint,toPoint,playground, boxes) => dispatch(setRoute(fromPoint,toPoint,playground, boxes)),
+        setRoute: (fromPoint, toPoint, playground, boxes) => dispatch(setRoute(fromPoint, toPoint, playground, boxes)),
         setPlayground: area => dispatch(setPlayground(area)),
         setBoxes: playground => dispatch(setBoxes(playground)),
-        addBoxesRow: playground => dispatch(addBoxesRow(playground)),
-        boxesInit:playground => dispatch(boxesInit(playground)),
-    }
-};
+        addBoxesRow: (level) => dispatch(addBoxesRow(level)),
+        boxesInit: playground => dispatch(boxesInit(playground)),
+    };
+}
 
 const Game = connect(
     mapStateToProps,

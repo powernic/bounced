@@ -17,17 +17,16 @@ const initialState = {
         x: 0,
         y: 0,
     },
-    passedRouteInd: 0,
+    toRouteInd: 0,
     route: [],
+    switchLevel: false,
     level: 1,
     nose: {
         points: '',
         rotate: ''
     },
-    ballAnimated: {
-        from: new Animated.ValueXY({x: 190, y: 590}),
-        to: new Animated.ValueXY({x: 190, y: 590})
-    },
+    ballAnimated: new Animated.ValueXY({x: 190, y: 590}),
+    ballToPosition: {x:0,y:0},
     fire: false
 };
 

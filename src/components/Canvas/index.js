@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {Svg} from "expo";
 import {View} from "react-native";
-import Boxes from "./Boxes";
+import BoxesContainer from "../../containers/Boxes";
 import PlayerBallContainer from "../../containers/PlayerBall";
 import PlayerNoseContainer from "../../containers/PlayerNose";
 import RaysContainer from "../../containers/Rays";
@@ -23,38 +23,51 @@ class Canvas extends Component {
         const playground = {
             topLeft: {x: 0, y: 0},
             topRight: {x: area.width, y: 0},
-            bottomLeft: {x: 0, y: area.height},
-            bottomRight: {x: area.width, y: area.height}
+            bottomLeft: {x: 0, y: 610},
+            bottomRight: {x: area.width, y: 610}
         };
         setPlayground(playground);
         boxesInit(playground);
     };
 
-    handleTouchUp = ({nativeEvent}) => {
-        this.props.startFire({
-            x: nativeEvent.locationX,
-            y: nativeEvent.locationY
-        });
-        this.currentMousePosition = {
-            locationX: nativeEvent.locationX,
-            locationY: nativeEvent.locationY
+    moveFinger = (fingerPosition) => {
+        const {moveObjects, setRoute, playground, position, boxes} = this.props;
+        let tapPosition = {
+            x: fingerPosition.locationX,
+            y: fingerPosition.locationY
         };
+        setRoute(position, tapPosition, playground, boxes);
+        moveObjects(tapPosition);
+    }
+
+    handleTouchUp = () => {
+        if(!this.props.fire) {
+            this.moveFinger(this.currentMousePosition);
+            this.props.startFire({
+                x: this.currentMousePosition.locationX,
+                y: this.currentMousePosition.locationY
+            });
+        }
     };
 
     componentDidMount() {
-        setInterval(() => {
-            if ((Math.abs(this.currentMousePosition.locationX - this.prevMousePosition.locationX) > 1
+        this.intervalId = setInterval(() => {
+            if (!this.props.fire && (Math.abs(this.currentMousePosition.locationX - this.prevMousePosition.locationX) > 1
                 || Math.abs(this.currentMousePosition.locationY - this.prevMousePosition.locationY) > 1)) {
                 this.prevMousePosition = {...this.currentMousePosition};
-                const {moveObjects, setRoute, playground, position, boxes} = this.props;
-                let tapPosition = {
-                    x: this.currentMousePosition.locationX,
-                    y: this.currentMousePosition.locationY
-                };
-                moveObjects(tapPosition);
-                setRoute(position, tapPosition, playground, boxes);
+                this.moveFinger(this.prevMousePosition);
             }
         }, 15);
+    }
+    componentWillUnmount(){
+        clearInterval(this.intervalId);
+    }
+
+    shouldComponentUpdate(nextProps){
+        if(nextProps.fire){
+            return false;
+        }
+        return true;
     }
 
     handleMoveFinger = ({nativeEvent}) => {
@@ -65,7 +78,7 @@ class Canvas extends Component {
     };
 
     render() {
-        const {playground, boxes, position} = this.props;
+        const {playground} = this.props;
         const viewBox = [0, 0, playground.bottomRight.x, playground.bottomRight.y].join(" ");
         return (
             <View
@@ -86,7 +99,7 @@ class Canvas extends Component {
                     viewBox={viewBox}>
                     <PlayerNoseContainer/>
                     <RaysContainer/>
-                    <Boxes boxes={boxes}/>
+                    <BoxesContainer/>
                 </Svg>
                 <PlayerBallContainer/>
             </View>

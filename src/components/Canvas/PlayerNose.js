@@ -20,6 +20,10 @@ const PlayerPoint = (props) => {
 
     const {tapPosition, playerPosition} = props;
 
+    if(tapPosition.x === 0 && tapPosition.y ===0){
+        return false;
+    }
+
     return (
         <Svg.Polygon
             transform={getTransform(playerPosition, tapPosition)}
