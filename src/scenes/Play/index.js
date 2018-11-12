@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
 import Game from '../../containers/Game';
+import GameStatus from "../../containers/GameStatus";
 
 class Play extends Component {
 
@@ -21,19 +22,7 @@ class Play extends Component {
                             source={require('../../img/pause-button.png')}
                         />
                     </TouchableOpacity>
-                    <Text style={{color: "#fff", fontSize: 50, lineHeight: 60}}>8</Text>
-                    <View style={{
-                        alignItems: 'flex-end', flexDirection: "row"
-                    }}>
-                        <View style={{
-                            alignItems: 'center', marginRight: 10
-                        }}>
-                            <Image source={require('../../img/star.png')}/>
-                            <Text style={{color: "#ff7e22", fontSize: 20}}>BEST </Text>
-                        </View>
-                        <Text style={{color: "#fff", fontSize: 20}}>270</Text>
-                        <Text style={{color: "#ff7e22", fontSize: 20}}>364</Text>
-                    </View>
+                    <GameStatus/>
                 </View>
                 <Game/>
             </View>);

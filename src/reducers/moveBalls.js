@@ -1,6 +1,5 @@
-import {calculateNextPosition, calculateRaysRoute, distance} from "../utils/formula";
-import {moveObjects} from "../actions/PlayerActions";
-import {SET_ROUTE} from "../actions/GameActions";
+import {calculateRaysRoute} from "../utils/formula";
+import update from 'immutability-helper';
 import {Animated} from "react-native";
 
 const isLastBallPosition = (toRouteInd, route) => {
@@ -8,19 +7,24 @@ const isLastBallPosition = (toRouteInd, route) => {
 };
 
 const moveBalls = (state, action) => {
-    let {route, toRouteInd} = state;
-    if (route.length === toRouteInd + 1) {
+    let {routes, toRoutesInd, ballsToPosition} = state;
+    /*  */
+    const {key} = action;
+    const route = routes[key];
+    const toRouteInd = toRoutesInd[key];
+    if (routes.length === toRouteInd + 1) {
         return {
             ...state,
             switchLevel: true
         }
     } else {
-        const ballToPosition = {x: route[toRouteInd + 1].x - 10, y: route[toRouteInd + 1].y - 10};
-
+        const newBallToPosition = {x: route[toRouteInd + 1].x - 10, y: route[toRouteInd + 1].y - 10};
+        const newBallsToPosition = update(ballsToPosition, {[key]: {$set: newBallToPosition}});
+        const newToRoutesInd = update(toRoutesInd, {[key]: {$set: toRouteInd + 1}});
         return {
             ...state,
-            ballToPosition,
-            toRouteInd: ++toRouteInd
+            ballsToPosition: newBallsToPosition,
+            toRoutesInd: newToRoutesInd
         };
     }
 };
@@ -29,17 +33,25 @@ export default moveBalls;
 
 
 export const startFire = (state, action) => {
-    let {route, toRouteInd} = state;
-    if (route.length == 0) {
+    let {routes, toRoutesInd} = state;
+    if (routes.length === 0) {
         console.error("Route is empty");
         return state;
     }
-    const ballToPosition = {x: route[toRouteInd + 1].x - 10, y: route[toRouteInd + 1].y - 10};
+
+    const ballsToPosition = routes.map((route, i) => {
+        return {x: route[toRoutesInd[i] + 1].x - 10, y: route[toRoutesInd[i] + 1].y - 10};
+    });
+    const ballsAnimated = routes.map((route, i) => {
+        return new Animated.ValueXY({x: route[toRoutesInd[i]].x - 10, y: route[toRoutesInd[i]].y - 10});
+    });
+    const newRoutedInd = toRoutesInd.map(() => 1);
     return {
         ...state,
-        ballToPosition,
+        ballsToPosition,
+        ballsAnimated,
         fireTo: action.payload,
-        toRouteInd: 1,
+        toRoutesInd: newRoutedInd,
         fire: true,
         position: {x: 0, y: 0},
     };
@@ -71,12 +83,21 @@ export const nextLevel = (state, action) => {
 export const setRoute = (state, action) => {
     if (!action.payload) return state;
     const {fromPoint, toPoint, playground, boxes} = action.payload;
-    const route = calculateRaysRoute(fromPoint, toPoint, playground, boxes);
-
-
+    let routes = [];
+    for (let i = 0; i < state.points; i++) {
+        routes.push(calculateRaysRoute(fromPoint, toPoint, playground, boxes))
+    }
+    const toRoutesInd = Array(routes.length).fill(0);
     return {
         ...state,
-        toRouteInd: 0,
-        route
+        toRoutesInd,
+        routes
+    };
+};
+
+export const addPoint = (state) => {
+    return {
+        ...state,
+        points: state.points + 1
     };
 };

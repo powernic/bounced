@@ -9,7 +9,7 @@ import {moveBalls, nextLevel} from "../actions/PlayerActions";
 class RaysContainer extends Component {
 
     shouldComponentUpdate(nextProps) {
-        if (nextProps.route.length === 0) return true;
+        if (nextProps.routes.length === 0) return true;
         if (nextProps.boxes.boxesPositions !== this.props.boxes.boxesPositions && this.props.boxes.boxesPositions.length > 0) {
             const ind = nextProps.toRouteInd;
             const currentPoint = nextProps.route[ind];
@@ -26,7 +26,7 @@ class RaysContainer extends Component {
             this.props.moveBalls();
             return false;
         }
-        if (nextProps.route === this.props.route) {
+        if (nextProps.routes === this.props.routes) {
             return false;
         }
         return true;
@@ -35,7 +35,7 @@ class RaysContainer extends Component {
     render() {
         return (
             <Fragment>
-                <Rays route={this.props.route} fire={this.props.fire}/>
+                <Rays routes={this.props.routes} fire={this.props.fire}/>
             </Fragment>
         );
     }
@@ -43,7 +43,7 @@ class RaysContainer extends Component {
 
 const mapStateToProps = store => {
     return {
-        route: store.player.route,
+        routes: store.player.routes,
         fire: store.player.fire,
         toRouteInd: store.player.toRouteInd,
         playground: store.playground,

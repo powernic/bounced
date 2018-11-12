@@ -1,6 +1,6 @@
 import moveObjects from "./moveObjects";
-import moveBalls, {nextLevel, setRoute, startFire, stopFire} from "./moveBalls";
-import {MOVE_BALLS, MOVE_OBJECTS, NEXT_LEVEL, START_FIRE, STOP_FIRE} from "../actions/PlayerActions";
+import moveBalls, {addPoint, nextLevel, setRoute, startFire, stopFire} from "./moveBalls";
+import {ADD_POINT, MOVE_BALLS, MOVE_OBJECTS, NEXT_LEVEL, START_FIRE, STOP_FIRE} from "../actions/PlayerActions";
 import {SET_ROUTE} from "../actions/GameActions";
 import {Animated} from "react-native";
 
@@ -17,16 +17,17 @@ const initialState = {
         x: 0,
         y: 0,
     },
-    toRouteInd: 0,
-    route: [],
+    toRoutesInd: [0],
+    routes: [[]],
     switchLevel: false,
+    points:3,
     level: 1,
     nose: {
         points: '',
         rotate: ''
     },
-    ballAnimated: new Animated.ValueXY({x: 190, y: 590}),
-    ballToPosition: {x:0,y:0},
+    ballsAnimated: [new Animated.ValueXY({x: 190, y: 590})],
+    ballsToPosition: [{x:0,y:0}],
     fire: false
 };
 
@@ -44,6 +45,8 @@ export function playerReducer(state = initialState, action) {
             return setRoute(state, action);
         case NEXT_LEVEL:
             return nextLevel(state, action);
+        case ADD_POINT:
+            return addPoint(state, action);
         default:
             return state
     }

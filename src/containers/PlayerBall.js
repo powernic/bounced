@@ -1,11 +1,12 @@
 import {connect} from 'react-redux'
 import {Component, Fragment} from "react";
 import React from "react";
-import {moveBalls, nextLevel, stopFire} from "../actions/PlayerActions";
-import {Animated, Easing} from "react-native";
+import {addPoint, moveBalls, nextLevel} from "../actions/PlayerActions";
+import {Animated, Easing, Text} from "react-native";
 import {distance} from "../utils/formula";
 import PropTypes from 'prop-types';
 import {addBoxesRow, touchBox} from "../actions/GameActions";
+import {BOARD_EMPTY} from "../utils/constants";
 
 
 class PlayerBallContainer extends Component {
@@ -18,52 +19,64 @@ class PlayerBallContainer extends Component {
         return length * velocity;
     };
 
-    moveBall = (ball, ballToPosition, moveBalls, touchBoxId = false, boxes) => {
+    moveBall = (key, ball, ballToPosition, moveBalls, item, boxes) => {
         const duration = this.getDuration(
             {x: ball.x._value, y: ball.y._value},
             ballToPosition);
+     //   console.log(`${duration} (${ball.x._value},${ball.y._value}) => (${ballToPosition.x},${ballToPosition.y})`);
         Animated.timing(ball, {
             toValue: ballToPosition,
             easing: Easing.linear,
             duration: duration
         }).start(() => {
-            if (touchBoxId !== false) {
-                this.props.touchBox(touchBoxId);
-                const {row, column} = boxes.boxesPositions[touchBoxId].board;
-                if (boxes.board[row][column] > 0) {
-                    moveBalls();
-                }
-            } else {
-                moveBalls();
+            switch (item.type) {
+                case 'box':
+                  //  this.props.touchBox(item.boxInd);
+                    const {row, column} = boxes.boxesPositions[item.boxInd].board;
+                    if (boxes.board[row][column] !== BOARD_EMPTY) {
+                        moveBalls(key);
+                    }
+                    break;
+                case 'point':
+                    this.props.touchBox(item.boxInd);
+                    this.props.addPoint();
+                    break;
+                default:
+                    moveBalls(key);
+                    break;
             }
         });
     };
 
+    startMove = (key,ball, ballToPosition, moveBalls, item, boxes) => {
+        setTimeout((key,ball, ballToPosition, moveBalls, item, boxes) => {
+            this.moveBall(key, ball, ballToPosition, moveBalls, item, boxes);
+        }, 100*key,key,ball, ballToPosition, moveBalls, item, boxes);
+    };
+
     shouldComponentUpdate(nextProps, nextState) {
-        const {fire, route, ball, ballToPosition, toRouteInd, playground, switchLevel, level,boxes} = nextProps;
-        const {nextLevel, moveBalls, addBoxesRow} = this.props;
-        if (ballToPosition === this.props.ballToPosition &&
-            (switchLevel === this.props.switchLevel)) return false;
-        if (fire) {
-            if (!switchLevel) {
-                const ind = toRouteInd - 1;
-                const item = route[ind];
-                let touchBoxId = false;
-                if (item.type === 'box') {
-                    touchBoxId = item.boxInd;
-                }
-                this.moveBall(ball, ballToPosition, moveBalls, touchBoxId, boxes);
-            } else {
-                nextLevel(ballToPosition);
-                addBoxesRow(level);
-                return false;
-            }
+        const { route, ballToPosition, toRouteInd, boxes,ballKey} = nextProps;
+        const {moveBalls,ball} = this.props;
+        if(nextProps.fire) {
+            const ind = toRouteInd - 1;
+            const item = route[ind];
+            this.startMove(ballKey,ball, ballToPosition, moveBalls, item, boxes);
         }
-        return true;
+        return false;
+    }
+
+
+    componentDidMount() {
+        const { fire, route,ball, ballToPosition, toRouteInd, boxes,ballKey} = this.props;
+        if(fire){
+            const ind = toRouteInd - 1;
+            const item = route[ind];
+            this.startMove(ballKey,ball, ballToPosition, moveBalls, item, boxes);
+        }
     }
 
     render() {
-        const {ball} = this.props;
+        const {ball,ballKey} = this.props;
         return (
             <Fragment>
                 <Animated.View style={{
@@ -73,56 +86,10 @@ class PlayerBallContainer extends Component {
                     position: "absolute",
                     transform: [{translateX: ball.x}, {translateY: ball.y}],
                     backgroundColor: "#fff"
-                }}/>
+                }}><Text>{ballKey}</Text></Animated.View>
             </Fragment>
         )
     }
 }
 
-const
-    mapStateToProps = store => {
-        return {
-            ball: store.player.ballAnimated,
-            ballToPosition: store.player.ballToPosition,
-            fire: store.player.fire,
-            route: store.player.route,
-            level: store.player.level,
-            toRouteInd: store.player.toRouteInd,
-            switchLevel: store.player.switchLevel,
-            playground: store.playground,
-            boxes: store.boxes
-        }
-    };
-
-const
-    mapDispatchToProps = dispatch => {
-        return {
-            moveBalls: () => dispatch(moveBalls()),
-            nextLevel: (playerPosition) => dispatch(nextLevel(playerPosition)),
-            touchBox: (boxId) => dispatch(touchBox(boxId)),
-            addBoxesRow: (level) => dispatch(addBoxesRow(level)),
-
-        }
-    };
-
-
-PlayerBallContainer
-    .propTypes = {
-    ball: PropTypes.shape(
-        {
-            from: PropTypes.object,
-            to: PropTypes.object
-        }),
-    switchLevel: PropTypes.bool,
-    fire: PropTypes.bool
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)
-
-(
-    PlayerBallContainer
-)
-;
+export default PlayerBallContainer;

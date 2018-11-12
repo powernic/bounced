@@ -1,3 +1,5 @@
+import {BOARD_EMPTY, BOARD_POINT} from "./constants";
+
 export const radiansToDegrees = radians => ((radians * 180) / Math.PI);
 const degreesToRadian = degrees => ((degrees * Math.PI) / 180);
 
@@ -136,6 +138,14 @@ export const getCorner = (box, point) => {
     }
 };
 
+/**
+ *
+ * @param box {{x1,x2,y1,y2}}
+ * @param point {{x,y}}
+ * @param angle {Number} Angle in degrees
+ * @param radius {Number}
+ * @returns {{x,y}}
+ */
 export const circleToBoxCollision = (box, point, angle, radius = 10) => {
     let toPoint = boxCollision({
         x1: box.x1 - radius,
@@ -190,6 +200,13 @@ export const circleToBoxCollision = (box, point, angle, radius = 10) => {
 
 };
 
+/**
+ *
+ * @param boxes
+ * @param point
+ * @param currentAngle
+ * @returns {{box:{x1,x2,y1,y2}, point:{x,y}, boxInd:{Number}}}
+ */
 export const boxesCollision = (boxes, point, currentAngle) => {
     let nearestPointCollision = false;
     let nearestBox = {};
@@ -335,6 +352,59 @@ export const calculateNextPosition = (x, y, angle, divisor = 300) => {
     }
 };
 
+/**
+ *
+ * @param board
+ * @param boxesPositions
+ * @param point
+ * @param boxCollisionItem {{box:{x1,x2,y1,y2}, point:{x,y}, boxInd:{Number}}}
+ * @param lastAngle
+ * @return {Number} Angle of reflection
+ */
+export const getAngleBlockCollision = (board, boxesPositions, point, boxCollisionItem, lastAngle) => {
+    const boxInfo = boxesPositions[boxCollisionItem.boxInd];
+    const {column, row} = boxInfo.board;
+    const block = board[row][column];
+    let angle = 0;
+    switch (block) {
+        case BOARD_EMPTY:
+            console.error("Empty block is not available for collision");
+            return false;
+        case BOARD_POINT:
+            angle = lastAngle;
+            break;
+        default:
+            if ('angle' in boxCollisionItem.point) {
+                angle = -boxCollisionItem.point.angle - 90;
+            } else {
+                angle = mirrorAngleBox(boxCollisionItem.box, point, lastAngle);
+            }
+            break;
+    }
+    return angle;
+};
+
+/**
+ *
+ * @param board
+ * @param boxesPositions
+ * @param boxInd
+ * @returns {string}
+ */
+export const getBlockType = (board, boxesPositions, boxInd) => {
+    const boxInfo = boxesPositions[boxInd];
+    const {column, row} = boxInfo.board;
+    const block = board[row][column];
+    switch (block) {
+        case BOARD_EMPTY:
+            return "empty";
+        case BOARD_POINT:
+            return "point";
+        default:
+            return "box";
+    }
+};
+
 export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) => {
     let angle = 0;
     let point = fromPosition;
@@ -364,7 +434,7 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
         } else {
             angle = calcAngle(endPoint, boxCollisionItem.point);
             endPoint = boxCollisionItem.point;
-            type = 'box';
+            type = getBlockType(board, boxesPositions, boxCollisionItem.boxInd);
             boxInd = boxCollisionItem.boxInd;
         }
         route.push({...point, angle, type, boxInd});
@@ -388,11 +458,7 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
                 y2: playground.bottomRight.y
             }, point, angle);
         } else {
-            if ('angle' in boxCollisionItem.point) {
-                angle = -boxCollisionItem.point.angle - 90;
-            } else {
-                angle = mirrorAngleBox(boxCollisionItem.box, point, angle);
-            }
+            angle = getAngleBlockCollision(board, boxesPositions, point, boxCollisionItem, angle);
         }
         if (i > 225) {
             break;
@@ -401,11 +467,27 @@ export const calculateRaysRoute = (fromPosition, toPosition, playground, boxes) 
     return route;
 };
 
+export const getEmptyBoxes = (row) => {
+    return row.reduce(function (arr, current, ind) {
+        if (current === 0) {
+            arr.push(ind);
+        }
+        return arr;
+    }, []);
+};
+
+export const setBoardPoint = (row) => {
+    const emptyBoxes = getEmptyBoxes(row);
+    const randomPos = Math.floor(Math.random() * emptyBoxes.length);
+    row[emptyBoxes[randomPos]] = BOARD_POINT;
+};
+
 export const getBoxesRow = (count, multiplier) => {
     const blocksInfo = randomDoubleSeq(count, multiplier);
-    let row = Array(count).fill(0);
+    let row = Array(count).fill(BOARD_EMPTY);
     for (let key in blocksInfo) {
         row[key] = blocksInfo[key];
     }
+    setBoardPoint(row);
     return row;
 };

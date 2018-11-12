@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {Svg} from "expo";
 import {View} from "react-native";
 import BoxesContainer from "../../containers/Boxes";
-import PlayerBallContainer from "../../containers/PlayerBall";
+import PlayerBallsContainer from "../../containers/PlayerBalls";
 import PlayerNoseContainer from "../../containers/PlayerNose";
 import RaysContainer from "../../containers/Rays";
 
@@ -101,7 +101,7 @@ class Canvas extends Component {
                     <RaysContainer/>
                     <BoxesContainer/>
                 </Svg>
-                <PlayerBallContainer/>
+                <PlayerBallsContainer/>
             </View>
         );
     }

@@ -1,5 +1,6 @@
 import {getBoxesRow} from "../utils/formula";
 import {BOXES_INIT} from "../actions/GameActions";
+import {BOARD_EMPTY, BOARD_POINT} from "../utils/constants";
 
 const initialState =
     {
@@ -25,7 +26,7 @@ const getBoxesPositions = (board, blockSize) => {
     let boxesPositions = [];
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
-            if (board[i][j] > 0) {
+            if (board[i][j] !== BOARD_EMPTY) {
                 boxesPositions.push({
                         x1: blockSize * j,
                         x2: blockSize * j + blockSize,
@@ -66,13 +67,24 @@ const touchBox = (state, action) => {
     const ind = action.payload;
     let newBoard = board.slice();
     const {row, column} = boxesPositions[ind].board;
-    newBoard[row][column]--;
-    if (newBoard[row][column] === 0) {
-        let newPositions = boxesPositions.slice();
-        newPositions.splice(ind, 1);
-        return {...state, boxesPositions: newPositions, board: newBoard};
-    } else {
-        return {...state, board: newBoard};
+    switch(newBoard[row][column]){
+        case BOARD_EMPTY:
+            console.error("Empty box not available for touch");
+            return false;
+        case BOARD_POINT:
+            newBoard[row][column] = 0;
+            let newPositions = boxesPositions.slice();
+            newPositions.splice(ind, 1);
+            return {...state, boxesPositions: newPositions, board: newBoard};
+        default:
+            newBoard[row][column]--;
+            if (newBoard[row][column] === 0) {
+                let newPositions = boxesPositions.slice();
+                newPositions.splice(ind, 1);
+                return {...state, boxesPositions: newPositions, board: newBoard};
+            } else {
+                return {...state, board: newBoard};
+            }
     }
 };
 
