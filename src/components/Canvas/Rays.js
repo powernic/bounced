@@ -4,7 +4,7 @@ import {Svg} from "expo";
 const Rays = (props) => {
     const {routes, fire} = props;
     const maxRays = 20;
-    if (routes.length === 0 || fire) return false;
+//    if (routes.length === 0 || fire) return false;
 
     return routes.reduce((raycastTemplate,route,routeInd)=>{
         for (let ind in route) {

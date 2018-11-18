@@ -1,6 +1,7 @@
 export const SET_PLAYGROUND = 'SET_PLAYGROUND';
 export const SET_BOXES = 'SET_BOXES';
 export const SET_ROUTE = 'SET_ROUTE';
+export const SET_START_ROUTE = 'SET_START_ROUTE';
 export const TOUCH_BOX = 'TOUCH_BOX';
 export const REMOVE_BOX = 'REMOVE_BOX';
 export const ADD_BOXES_ROW = 'ADD_BOXES_ROW';
@@ -34,8 +35,11 @@ export const touchBox = ind => ({
     type: TOUCH_BOX,
     payload: ind,
 });
-
-export const setRoute = (fromPoint,toPoint,playground, boxes) => ({
-    type: SET_ROUTE,
+export const setStartRoute = (fromPoint,toPoint,playground, boxes) => ({
+    type: SET_START_ROUTE,
     payload: {fromPoint,toPoint,playground, boxes},
+});
+export const setRoute = (fromPoints,toPoints,playground, boxes) => ({
+    type: SET_ROUTE,
+    payload: {fromPoints,toPoints,playground, boxes},
 });

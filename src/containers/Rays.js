@@ -11,19 +11,18 @@ class RaysContainer extends Component {
     shouldComponentUpdate(nextProps) {
         if (nextProps.routes.length === 0) return true;
         if (nextProps.boxes.boxesPositions !== this.props.boxes.boxesPositions && this.props.boxes.boxesPositions.length > 0) {
-            const ind = nextProps.toRouteInd;
-            const currentPoint = nextProps.route[ind];
-            const nextPoint = nextProps.route[ind + 1];
-            this.props.setRoute(
-                {
-                    x: currentPoint.x,
-                    y: currentPoint.y
-                },
-                {
-                    x: nextPoint.x,
-                    y: nextPoint.y
-                }, nextProps.playground, nextProps.boxes);
-            this.props.moveBalls();
+            let fromPoints = [];
+            let toPoints = [];
+            nextProps.routes.map((route, key) => {
+                const ind = nextProps.toRoutesInd[key]-1;
+                const currentPoint = route[ind];
+                const nextPoint = route[ind + 1];
+                fromPoints.push(currentPoint);
+                toPoints.push(nextPoint);
+            });
+
+            this.props.setRoute(fromPoints,toPoints, nextProps.playground, nextProps.boxes);
+            //this.props.moveBalls();
             return false;
         }
         if (nextProps.routes === this.props.routes) {
@@ -45,7 +44,7 @@ const mapStateToProps = store => {
     return {
         routes: store.player.routes,
         fire: store.player.fire,
-        toRouteInd: store.player.toRouteInd,
+        toRoutesInd: store.player.toRoutesInd,
         playground: store.playground,
         boxes: store.boxes
     }
@@ -54,7 +53,7 @@ const mapStateToProps = store => {
 const mapDispatchToProps = dispatch => {
     return {
         moveBalls: () => dispatch(moveBalls()),
-        setRoute: (fromPoint, toPoint, playground, boxes) => dispatch(setRoute(fromPoint, toPoint, playground, boxes)),
+        setRoute: (fromPoints, toPoints, playground, boxes) => dispatch(setRoute(fromPoints, toPoints, playground, boxes)),
     };
 }
 

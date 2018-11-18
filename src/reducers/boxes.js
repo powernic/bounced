@@ -6,6 +6,7 @@ const initialState =
     {
         board: Array(7).fill(Array(7).fill(0)),
         boxesPositions: [],
+        init: false,
         config: {
             countBlocksInRow: 7,
             blockSize: 0,
@@ -54,6 +55,7 @@ const boxesInit = (state, action) => {
     return {
         ...state,
         board,
+        init:true,
         boxesPositions: getBoxesPositions(board, blockSize),
         config: {
             ...state.config,

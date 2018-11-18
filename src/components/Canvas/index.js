@@ -31,12 +31,12 @@ class Canvas extends Component {
     };
 
     moveFinger = (fingerPosition) => {
-        const {moveObjects, setRoute, playground, position, boxes} = this.props;
+        const {moveObjects, setStartRoute, playground, position, boxes} = this.props;
         let tapPosition = {
             x: fingerPosition.locationX,
             y: fingerPosition.locationY
         };
-        setRoute(position, tapPosition, playground, boxes);
+        setStartRoute(position, tapPosition, playground, boxes);
         moveObjects(tapPosition);
     }
 

@@ -12,7 +12,7 @@ const moveBalls = (state, action) => {
     const {key} = action;
     const route = routes[key];
     const toRouteInd = toRoutesInd[key];
-    if (routes.length === toRouteInd + 1) {
+    if (route.length === toRouteInd + 1) {
         return {
             ...state,
             switchLevel: true
@@ -33,24 +33,30 @@ export default moveBalls;
 
 
 export const startFire = (state, action) => {
-    let {routes, toRoutesInd} = state;
+    let {routes,ballsAnimated} = state;
     if (routes.length === 0) {
         console.error("Route is empty");
         return state;
     }
+    const newRoutes = new Array(state.points).fill([...routes[0]]);
 
-    const ballsToPosition = routes.map((route, i) => {
+    const toRoutesInd = Array(newRoutes.length).fill(0);
+
+    const ballsToPosition = newRoutes.map((route, i) => {
         return {x: route[toRoutesInd[i] + 1].x - 10, y: route[toRoutesInd[i] + 1].y - 10};
     });
-    const ballsAnimated = routes.map((route, i) => {
+    ballsAnimated = newRoutes.map((route, i) => {
+        if(ballsAnimated[i]) return ballsAnimated[i];
         return new Animated.ValueXY({x: route[toRoutesInd[i]].x - 10, y: route[toRoutesInd[i]].y - 10});
     });
     const newRoutedInd = toRoutesInd.map(() => 1);
+
     return {
         ...state,
         ballsToPosition,
         ballsAnimated,
         fireTo: action.payload,
+        routes:newRoutes,
         toRoutesInd: newRoutedInd,
         fire: true,
         position: {x: 0, y: 0},
@@ -82,15 +88,26 @@ export const nextLevel = (state, action) => {
 
 export const setRoute = (state, action) => {
     if (!action.payload) return state;
-    const {fromPoint, toPoint, playground, boxes} = action.payload;
+    const {fromPoints, toPoints, playground, boxes} = action.payload;
     let routes = [];
     for (let i = 0; i < state.points; i++) {
-        routes.push(calculateRaysRoute(fromPoint, toPoint, playground, boxes))
+        routes.push(calculateRaysRoute(fromPoints[i], toPoints[i], playground, boxes))
     }
-    const toRoutesInd = Array(routes.length).fill(0);
+    const toRoutesInd = Array(routes.length).fill(1);
     return {
         ...state,
         toRoutesInd,
+        routes
+    };
+};
+export const setStartRoute = (state, action) => {
+    if (!action.payload) return state;
+    const {fromPoint, toPoint, playground, boxes} = action.payload;
+    let routes = [];
+    const startRoute = calculateRaysRoute(fromPoint, toPoint, playground, boxes);
+    routes.push(startRoute);
+    return {
+        ...state,
         routes
     };
 };

@@ -4,5 +4,5 @@ import logger from 'redux-logger'
 import {moveBalls} from "../enhancers/boxes";
 
 export const store = createStore(rootReducer,
-    applyMiddleware(moveBalls)
+   // applyMiddleware(moveBalls)
 );
